@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, Modal, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, Modal, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
 import type { Herd } from '../../types';
@@ -21,7 +21,7 @@ export default function HerdsScreen({ navigation }: Props) {
   async function loadHerds() {
     setLoading(true);
     const { data, error } = await supabase
-      .from('herds')
+      .from('shezhire_herds')
       .select('*')
       .order('created_at', { ascending: false });
     if (!error && data) setHerds(data);
@@ -32,7 +32,7 @@ export default function HerdsScreen({ navigation }: Props) {
     if (!newName.trim()) return;
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
-    const { error } = await supabase.from('herds').insert({ name: newName.trim(), location: newLocation.trim() || null, owner_id: user!.id });
+    const { error } = await supabase.from('shezhire_herds').insert({ name: newName.trim(), location: newLocation.trim() || null, owner_id: user!.id });
     if (error) Alert.alert('Қате', error.message);
     else {
       setModalVisible(false);
@@ -47,7 +47,7 @@ export default function HerdsScreen({ navigation }: Props) {
     Alert.alert('Жою', 'Табунды жою керек пе?', [
       { text: 'Жоқ', style: 'cancel' },
       { text: 'Жою', style: 'destructive', onPress: async () => {
-        await supabase.from('herds').delete().eq('id', id);
+        await supabase.from('shezhire_herds').delete().eq('id', id);
         loadHerds();
       }},
     ]);
@@ -81,11 +81,31 @@ export default function HerdsScreen({ navigation }: Props) {
       </TouchableOpacity>
 
       <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          style={styles.overlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={() => setModalVisible(false)} />
           <View style={styles.modal}>
             <Text style={styles.modalTitle}>Жаңа табун</Text>
-            <TextInput style={styles.input} placeholder="Атауы (мысалы: Солтүстік табун)" placeholderTextColor="#666" value={newName} onChangeText={setNewName} />
-            <TextInput style={styles.input} placeholder="Орналасуы (міндетті емес)" placeholderTextColor="#666" value={newLocation} onChangeText={setNewLocation} />
+            <TextInput
+              style={styles.input}
+              placeholder="Атауы (мысалы: Солтүстік табун)"
+              placeholderTextColor="#666"
+              value={newName}
+              onChangeText={setNewName}
+              returnKeyType="next"
+              autoFocus
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Орналасуы (міндетті емес)"
+              placeholderTextColor="#666"
+              value={newLocation}
+              onChangeText={setNewLocation}
+              returnKeyType="done"
+              onSubmitEditing={addHerd}
+            />
             <View style={styles.row}>
               <TouchableOpacity style={[styles.btn, styles.btnCancel]} onPress={() => setModalVisible(false)}>
                 <Text style={styles.btnText}>Бас тарту</Text>
@@ -95,7 +115,7 @@ export default function HerdsScreen({ navigation }: Props) {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

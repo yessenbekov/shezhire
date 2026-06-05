@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Switch } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Switch, KeyboardAvoidingView, Platform } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { parseBrand } from '../../types';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -30,7 +30,7 @@ export default function AddHorseScreen({ navigation, route }: Props) {
   }, [brand]);
 
   async function findHorseByBrand(b: string): Promise<string | null> {
-    const { data } = await supabase.from('horses').select('id').eq('brand', b).single();
+    const { data } = await supabase.from('shezhire_horses').select('id').eq('brand', b).single();
     return data?.id ?? null;
   }
 
@@ -51,7 +51,7 @@ export default function AddHorseScreen({ navigation, route }: Props) {
     const sireId = sireBrand.trim() ? await findHorseByBrand(sireBrand.trim()) : null;
     const damId = damBrand.trim() ? await findHorseByBrand(damBrand.trim()) : null;
 
-    const { error } = await supabase.from('horses').insert({
+    const { error } = await supabase.from('shezhire_horses').insert({
       owner_id: user!.id,
       herd_id: herdId ?? null,
       brand: brand.trim(),
@@ -76,7 +76,8 @@ export default function AddHorseScreen({ navigation, route }: Props) {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }}>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#0f0f1a' }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
       <Text style={styles.section}>Клеймо</Text>
       <TextInput
         style={styles.input}
@@ -124,6 +125,7 @@ export default function AddHorseScreen({ navigation, route }: Props) {
         <Text style={styles.buttonText}>{saving ? 'Сақталуда...' : 'Сақтау'}</Text>
       </TouchableOpacity>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

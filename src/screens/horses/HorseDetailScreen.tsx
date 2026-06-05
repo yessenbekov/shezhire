@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import type { Horse } from '../../types';
@@ -19,11 +19,45 @@ export default function HorseDetailScreen({ navigation, route }: Props) {
 
   useEffect(() => { load(); }, [horseId]);
 
+  // Кнопки в хедере — ставим после загрузки лошади
+  useEffect(() => {
+    if (!horse) return;
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: 'row', gap: 16, marginRight: 4 }}>
+          <TouchableOpacity onPress={() => navigation.navigate('EditHorse', { horseId: horse.id })}>
+            <Text style={{ fontSize: 20 }}>✏️</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={confirmDelete}>
+            <Text style={{ fontSize: 20 }}>🗑️</Text>
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, [horse]);
+
+  const confirmDelete = useCallback(() => {
+    Alert.alert(
+      'Жою',
+      `${horse?.brand} лошадін жою керек пе?`,
+      [
+        { text: 'Жоқ', style: 'cancel' },
+        {
+          text: 'Жою', style: 'destructive',
+          onPress: async () => {
+            await supabase.from('shezhire_horses').delete().eq('id', horseId);
+            navigation.goBack();
+          },
+        },
+      ]
+    );
+  }, [horse, horseId]);
+
   async function load() {
     setLoading(true);
     const [{ data: h }, { data: kids }] = await Promise.all([
-      supabase.from('horses').select('*, sire:sire_id(brand, name, sex), dam:dam_id(brand, name, sex)').eq('id', horseId).single(),
-      supabase.from('horses').select('*').or(`sire_id.eq.${horseId},dam_id.eq.${horseId}`).order('birth_year'),
+      supabase.from('shezhire_horses').select('*, sire:sire_id(brand, name, sex), dam:dam_id(brand, name, sex)').eq('id', horseId).single(),
+      supabase.from('shezhire_horses').select('*').or(`sire_id.eq.${horseId},dam_id.eq.${horseId}`).order('birth_year'),
     ]);
     if (h) setHorse(h as Horse);
     if (kids) setChildren(kids as Horse[]);

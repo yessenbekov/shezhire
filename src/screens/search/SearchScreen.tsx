@@ -19,7 +19,7 @@ export default function SearchScreen() {
     setSearched(true);
 
     const { data } = await supabase
-      .from('horses')
+      .from('shezhire_horses')
       .select('*')
       .eq('is_public', true)
       .or(`brand.ilike.%${q}%,name.ilike.%${q}%,breed.ilike.%${q}%`)

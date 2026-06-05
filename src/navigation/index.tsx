@@ -12,6 +12,7 @@ import HerdsScreen from '../screens/herds/HerdsScreen';
 import HerdDetailScreen from '../screens/herds/HerdDetailScreen';
 import HorseDetailScreen from '../screens/horses/HorseDetailScreen';
 import AddHorseScreen from '../screens/horses/AddHorseScreen';
+import EditHorseScreen from '../screens/horses/EditHorseScreen';
 import ShireTreeScreen from '../screens/horses/ShireTreeScreen';
 import SearchScreen from '../screens/search/SearchScreen';
 
@@ -35,6 +36,7 @@ export type HerdsStackParamList = {
   HerdDetail: { herdId: string; herdName: string };
   HorseDetail: { horseId: string };
   AddHorse: { herdId?: string };
+  EditHorse: { horseId: string };
   ShireTree: { horseId: string; horseBrand: string };
 };
 
@@ -65,6 +67,7 @@ function HerdsNavigator() {
       <HerdsStack.Screen name="HerdDetail" component={HerdDetailScreen} options={({ route }) => ({ title: route.params.herdName })} />
       <HerdsStack.Screen name="HorseDetail" component={HorseDetailScreen} options={{ title: 'Лошадь' }} />
       <HerdsStack.Screen name="AddHorse" component={AddHorseScreen} options={{ title: 'Жеребёнок қосу' }} />
+      <HerdsStack.Screen name="EditHorse" component={EditHorseScreen} options={{ title: 'Өзгерту' }} />
       <HerdsStack.Screen name="ShireTree" component={ShireTreeScreen} options={({ route }) => ({ title: `Шежіре: ${route.params.horseBrand}` })} />
     </HerdsStack.Navigator>
   );

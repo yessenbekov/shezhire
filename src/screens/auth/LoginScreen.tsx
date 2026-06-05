@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../../navigation';
@@ -7,6 +8,7 @@ import type { AuthStackParamList } from '../../navigation';
 type Props = { navigation: NativeStackNavigationProp<AuthStackParamList, 'Login'> };
 
 export default function LoginScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,41 +22,54 @@ export default function LoginScreen({ navigation }: Props) {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Text style={styles.logo}>🐎 Шежіре</Text>
-      <Text style={styles.subtitle}>Ат тегінің кітабы</Text>
+    <KeyboardAvoidingView
+      style={styles.outer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView
+        contentContainerStyle={[styles.container, { paddingTop: insets.top + 24 }]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.logo}>🐎 Шежіре</Text>
+        <Text style={styles.subtitle}>Ат тегінің кітабы</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#666"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Құпия сөз"
-        placeholderTextColor="#666"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor="#666"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          returnKeyType="next"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Құпия сөз"
+          placeholderTextColor="#666"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          returnKeyType="done"
+          onSubmitEditing={signIn}
+        />
 
-      <TouchableOpacity style={styles.button} onPress={signIn} disabled={loading}>
-        <Text style={styles.buttonText}>{loading ? 'Кіруде...' : 'Кіру'}</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={signIn} disabled={loading}>
+          <Text style={styles.buttonText}>{loading ? 'Кіруде...' : 'Кіру'}</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.link}>Тіркелу</Text>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+          <Text style={styles.link}>Тіркелу</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f0f1a', justifyContent: 'center', padding: 24 },
+  outer: { flex: 1, backgroundColor: '#0f0f1a' },
+  container: { flexGrow: 1, justifyContent: 'center', padding: 24 },
   logo: { fontSize: 48, textAlign: 'center', marginBottom: 8 },
   subtitle: { fontSize: 16, color: '#e8b84b', textAlign: 'center', marginBottom: 48 },
   input: { backgroundColor: '#1a1a2e', color: '#fff', borderRadius: 10, padding: 14, marginBottom: 12, fontSize: 16, borderWidth: 1, borderColor: '#333' },

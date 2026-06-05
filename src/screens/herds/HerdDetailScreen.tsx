@@ -22,7 +22,7 @@ export default function HerdDetailScreen({ navigation, route }: Props) {
   async function loadHorses() {
     setLoading(true);
     const { data, error } = await supabase
-      .from('horses')
+      .from('shezhire_horses')
       .select('*')
       .eq('herd_id', herdId)
       .order('sequence_no', { ascending: true });

@@ -22,7 +22,7 @@ async function buildTree(id: string | null, depth: number, maxDepth = 4): Promis
   if (!id || depth >= maxDepth) return { horse: null, sire: null, dam: null, depth };
 
   const { data } = await supabase
-    .from('horses')
+    .from('shezhire_horses')
     .select('*')
     .eq('id', id)
     .single();
