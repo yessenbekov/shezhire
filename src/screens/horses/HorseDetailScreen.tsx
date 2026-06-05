@@ -55,12 +55,31 @@ export default function HorseDetailScreen({ navigation, route }: Props) {
 
   async function load() {
     setLoading(true);
-    const [{ data: h }, { data: kids }] = await Promise.all([
-      supabase.from('shezhire_horses').select('*, sire:sire_id(brand, name, sex), dam:dam_id(brand, name, sex)').eq('id', horseId).single(),
-      supabase.from('shezhire_horses').select('*').or(`sire_id.eq.${horseId},dam_id.eq.${horseId}`).order('birth_year'),
+
+    // 1. Негізгі лошадь
+    const { data: h } = await supabase
+      .from('shezhire_horses')
+      .select('*')
+      .eq('id', horseId)
+      .single();
+
+    if (!h) { setLoading(false); return; }
+
+    // 2. Әкесі мен шешесін жеке сұрау (self-referential join ишкіліктері үшін)
+    const [{ data: sire }, { data: dam }, { data: kids }] = await Promise.all([
+      h.sire_id
+        ? supabase.from('shezhire_horses').select('id, brand, name, sex').eq('id', h.sire_id).single()
+        : Promise.resolve({ data: null }),
+      h.dam_id
+        ? supabase.from('shezhire_horses').select('id, brand, name, sex').eq('id', h.dam_id).single()
+        : Promise.resolve({ data: null }),
+      supabase.from('shezhire_horses').select('*')
+        .or(`sire_id.eq.${horseId},dam_id.eq.${horseId}`)
+        .order('birth_year'),
     ]);
-    if (h) setHorse(h as Horse);
-    if (kids) setChildren(kids as Horse[]);
+
+    setHorse({ ...h, sire: sire ?? null, dam: dam ?? null } as Horse);
+    setChildren((kids ?? []) as Horse[]);
     setLoading(false);
   }
 
