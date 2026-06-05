@@ -72,7 +72,7 @@ export default function HorsePicker({ visible, sexFilter, excludeId, onSelect, o
             <TextInput
               style={styles.searchInput}
               placeholder="Клеймо немесе кличка..."
-              placeholderTextColor="#555"
+              placeholderTextColor="#4A2A1A"
               value={query}
               onChangeText={setQuery}
               autoCapitalize="none"
@@ -86,7 +86,7 @@ export default function HorsePicker({ visible, sexFilter, excludeId, onSelect, o
 
           {/* Список */}
           {loading ? (
-            <ActivityIndicator color="#e8b84b" style={{ marginTop: 24 }} />
+            <ActivityIndicator color="#C8922A" style={{ marginTop: 24 }} />
           ) : (
             <FlatList
               data={filtered}
@@ -121,19 +121,19 @@ export default function HorsePicker({ visible, sexFilter, excludeId, onSelect, o
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: '#1a1a2e', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderColor: '#2a2a4a' },
-  title: { color: '#e8b84b', fontSize: 17, fontWeight: 'bold' },
-  closeBtn: { color: '#888', fontSize: 20, paddingLeft: 16 },
+  sheet: { backgroundColor: '#2A1210', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, borderBottomWidth: 1, borderColor: '#5A2820' },
+  title: { color: '#C8922A', fontSize: 17, fontWeight: 'bold' },
+  closeBtn: { color: '#9A7A5A', fontSize: 20, paddingLeft: 16 },
   searchRow: { padding: 12, paddingBottom: 0 },
-  searchInput: { backgroundColor: '#0f0f1a', color: '#fff', borderRadius: 10, padding: 12, fontSize: 15, borderWidth: 1, borderColor: '#2a2a4a' },
-  clearRow: { padding: 14, paddingHorizontal: 20, borderBottomWidth: 1, borderColor: '#2a2a4a' },
-  clearText: { color: '#666', fontSize: 14 },
-  empty: { color: '#555', textAlign: 'center', marginTop: 32, fontSize: 14 },
-  item: { flexDirection: 'row', alignItems: 'center', padding: 16, paddingHorizontal: 20, borderBottomWidth: 1, borderColor: '#2a2a4a' },
-  itemBrand: { color: '#e8b84b', fontSize: 17, fontWeight: 'bold', fontFamily: 'monospace', width: 72 },
+  searchInput: { backgroundColor: '#1C0A0A', color: '#fff', borderRadius: 10, padding: 12, fontSize: 15, borderWidth: 1, borderColor: '#5A2820' },
+  clearRow: { padding: 14, paddingHorizontal: 20, borderBottomWidth: 1, borderColor: '#5A2820' },
+  clearText: { color: '#5A3A2A', fontSize: 14 },
+  empty: { color: '#4A2A1A', textAlign: 'center', marginTop: 32, fontSize: 14 },
+  item: { flexDirection: 'row', alignItems: 'center', padding: 16, paddingHorizontal: 20, borderBottomWidth: 1, borderColor: '#5A2820' },
+  itemBrand: { color: '#C8922A', fontSize: 17, fontWeight: 'bold', fontFamily: 'monospace', width: 72 },
   itemRight: { flex: 1 },
   itemName: { color: '#fff', fontSize: 14, fontWeight: '600' },
-  itemYear: { color: '#888', fontSize: 12, marginTop: 1 },
-  itemSex: { color: '#666', fontSize: 18, marginLeft: 8 },
+  itemYear: { color: '#9A7A5A', fontSize: 12, marginTop: 1 },
+  itemSex: { color: '#5A3A2A', fontSize: 18, marginLeft: 8 },
 });

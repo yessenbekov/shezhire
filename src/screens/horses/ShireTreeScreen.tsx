@@ -47,7 +47,7 @@ export default function ShireTreeScreen({ navigation, route }: Props) {
     buildTree(horseId, 0).then(t => { setTree(t); setLoading(false); });
   }, [horseId]);
 
-  if (loading) return <ActivityIndicator size="large" color="#e8b84b" style={{ flex: 1, backgroundColor: '#0f0f1a' }} />;
+  if (loading) return <ActivityIndicator size="large" color="#C8922A" style={{ flex: 1, backgroundColor: '#1C0A0A' }} />;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: 16 }} horizontal={false}>
@@ -105,7 +105,7 @@ function EmptyNode() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f0f1a' },
+  container: { flex: 1, backgroundColor: '#1C0A0A' },
   treeWrap: { alignItems: 'center', paddingBottom: 40 },
   nodeContainer: { alignItems: 'center' },
   parentsRow: { flexDirection: 'row', gap: 8, marginBottom: 4 },
@@ -113,9 +113,9 @@ const styles = StyleSheet.create({
   node: { borderRadius: 10, padding: 12, minWidth: 100, alignItems: 'center', marginTop: 4, borderWidth: 2 },
   nodeMale: { backgroundColor: '#0f1e2e', borderColor: '#4a8fc4' },
   nodeFemale: { backgroundColor: '#2e0f1e', borderColor: '#c44a8f' },
-  nodeBrand: { color: '#e8b84b', fontSize: 16, fontWeight: 'bold', fontFamily: 'monospace' },
+  nodeBrand: { color: '#C8922A', fontSize: 16, fontWeight: 'bold', fontFamily: 'monospace' },
   nodeName: { color: '#fff', fontSize: 12, marginTop: 2 },
-  nodeYear: { color: '#888', fontSize: 11, marginTop: 1 },
-  emptyNode: { backgroundColor: '#1a1a2e', borderRadius: 10, padding: 12, minWidth: 100, alignItems: 'center', borderWidth: 1, borderColor: '#333', marginTop: 4 },
-  emptyText: { color: '#444', fontSize: 18 },
+  nodeYear: { color: '#9A7A5A', fontSize: 11, marginTop: 1 },
+  emptyNode: { backgroundColor: '#2A1210', borderRadius: 10, padding: 12, minWidth: 100, alignItems: 'center', borderWidth: 1, borderColor: '#5A2820', marginTop: 4 },
+  emptyText: { color: '#5A2820', fontSize: 18 },
 });

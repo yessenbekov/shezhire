@@ -4,6 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
 import { supabase } from '../lib/supabase';
+import IconHorse from '../components/icons/IconHorse';
+import IconSearch from '../components/icons/IconSearch';
 import type { Session } from '@supabase/supabase-js';
 
 import LoginScreen from '../screens/auth/LoginScreen';
@@ -58,9 +60,11 @@ function HerdsNavigator() {
   return (
     <HerdsStack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: '#1a1a2e' },
-        headerTintColor: '#e8b84b',
-        headerTitleStyle: { fontWeight: 'bold' },
+        headerStyle: { backgroundColor: '#2A1210' },
+        headerTintColor: '#C8922A',
+        headerTitleStyle: { fontWeight: 'bold', color: '#F5E6C8' },
+        headerShadowVisible: false,
+        contentStyle: { backgroundColor: '#1C0A0A' },
       }}
     >
       <HerdsStack.Screen name="Herds" component={HerdsScreen} options={{ title: 'Менің табундарым' }} />
@@ -77,21 +81,40 @@ function MainNavigator() {
   return (
     <MainTab.Navigator
       screenOptions={{
-        tabBarStyle: { backgroundColor: '#1a1a2e', borderTopColor: '#333' },
-        tabBarActiveTintColor: '#e8b84b',
-        tabBarInactiveTintColor: '#888',
+        tabBarStyle: {
+          backgroundColor: '#2A1210',
+          borderTopColor: '#5A2820',
+          borderTopWidth: 1,
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 6,
+        },
+        tabBarActiveTintColor: '#C8922A',
+        tabBarInactiveTintColor: '#5A3A2A',
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '600', letterSpacing: 0.3 },
         headerShown: false,
       }}
     >
       <MainTab.Screen
         name="HerdsTab"
         component={HerdsNavigator}
-        options={{ tabBarLabel: 'Табундар', tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>🐎</Text> }}
+        options={{
+          tabBarLabel: 'Табундар',
+          tabBarIcon: ({ color }) => <IconHorse size={26} color={color} />,
+        }}
       />
       <MainTab.Screen
         name="SearchTab"
         component={SearchScreen}
-        options={{ tabBarLabel: 'Іздеу', tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>🔍</Text> }}
+        options={{
+          tabBarLabel: 'Іздеу',
+          tabBarIcon: ({ color }) => <IconSearch size={22} color={color} />,
+          headerShown: true,
+          headerTitle: 'Іздеу',
+          headerStyle: { backgroundColor: '#2A1210' },
+          headerTitleStyle: { color: '#F5E6C8', fontWeight: 'bold' },
+          headerShadowVisible: false,
+        }}
       />
     </MainTab.Navigator>
   );

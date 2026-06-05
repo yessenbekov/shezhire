@@ -97,13 +97,13 @@ export default function EditHorseScreen({ navigation, route }: Props) {
   }
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#e8b84b" style={{ flex: 1, backgroundColor: '#0f0f1a' }} />;
+    return <ActivityIndicator size="large" color="#C8922A" style={{ flex: 1, backgroundColor: '#1C0A0A' }} />;
   }
 
   return (
     <>
       <KeyboardAvoidingView
-        style={{ flex: 1, backgroundColor: '#0f0f1a' }}
+        style={{ flex: 1, backgroundColor: '#1C0A0A' }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
@@ -115,9 +115,9 @@ export default function EditHorseScreen({ navigation, route }: Props) {
           </View>
 
           <Text style={styles.section}>Қосымша мәліметтер</Text>
-          <TextInput style={styles.input} placeholder="Кличкасы" placeholderTextColor="#666" value={name} onChangeText={setName} returnKeyType="next" />
-          <TextInput style={styles.input} placeholder="Тұқымы (мысалы: Жабы, Ахалтеке)" placeholderTextColor="#666" value={breed} onChangeText={setBreed} returnKeyType="next" />
-          <TextInput style={styles.input} placeholder="Түсі (мысалы: Торы, Қара)" placeholderTextColor="#666" value={color} onChangeText={setColor} returnKeyType="next" />
+          <TextInput style={styles.input} placeholder="Кличкасы" placeholderTextColor="#5A3A2A" value={name} onChangeText={setName} returnKeyType="next" />
+          <TextInput style={styles.input} placeholder="Тұқымы (мысалы: Жабы, Ахалтеке)" placeholderTextColor="#5A3A2A" value={breed} onChangeText={setBreed} returnKeyType="next" />
+          <TextInput style={styles.input} placeholder="Түсі (мысалы: Торы, Қара)" placeholderTextColor="#5A3A2A" value={color} onChangeText={setColor} returnKeyType="next" />
 
           <Text style={styles.section}>Шежіре байланыстары</Text>
 
@@ -146,7 +146,7 @@ export default function EditHorseScreen({ navigation, route }: Props) {
           <TextInput
             style={[styles.input, { height: 80, marginTop: 4 }]}
             placeholder="Жазбалар..."
-            placeholderTextColor="#666"
+            placeholderTextColor="#5A3A2A"
             value={notes}
             onChangeText={setNotes}
             multiline
@@ -154,7 +154,7 @@ export default function EditHorseScreen({ navigation, route }: Props) {
 
           <View style={styles.switchRow}>
             <Text style={styles.switchLabel}>Жалпыға қолжетімді</Text>
-            <Switch value={isPublic} onValueChange={setIsPublic} trackColor={{ true: '#e8b84b' }} />
+            <Switch value={isPublic} onValueChange={setIsPublic} trackColor={{ true: '#C8922A' }} />
           </View>
 
           <TouchableOpacity style={styles.button} onPress={save} disabled={saving}>
@@ -186,18 +186,18 @@ export default function EditHorseScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  section: { color: '#e8b84b', fontSize: 13, fontWeight: '600', marginBottom: 8, marginTop: 20, textTransform: 'uppercase', letterSpacing: 1 },
-  brandBox: { backgroundColor: '#1a1a2e', borderRadius: 10, padding: 16, borderWidth: 1, borderColor: '#2a2a4a', marginBottom: 4 },
-  brandText: { color: '#e8b84b', fontSize: 28, fontWeight: 'bold', fontFamily: 'monospace' },
-  brandSub: { color: '#888', fontSize: 14, marginTop: 4 },
-  input: { backgroundColor: '#1a1a2e', color: '#fff', borderRadius: 10, padding: 14, marginBottom: 10, fontSize: 16, borderWidth: 1, borderColor: '#2a2a4a' },
-  pickerBtn: { backgroundColor: '#1a1a2e', borderRadius: 10, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: '#2a2a4a', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  pickerLabel: { color: '#888', fontSize: 12, marginBottom: 3 },
-  pickerValue: { color: '#e8b84b', fontSize: 15, fontWeight: '600' },
-  pickerPlaceholder: { color: '#444', fontSize: 15 },
-  pickerArrow: { color: '#444', fontSize: 24 },
-  switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#1a1a2e', borderRadius: 10, padding: 14, marginBottom: 10 },
+  section: { color: '#C8922A', fontSize: 13, fontWeight: '600', marginBottom: 8, marginTop: 20, textTransform: 'uppercase', letterSpacing: 1 },
+  brandBox: { backgroundColor: '#2A1210', borderRadius: 10, padding: 16, borderWidth: 1, borderColor: '#5A2820', marginBottom: 4 },
+  brandText: { color: '#C8922A', fontSize: 28, fontWeight: 'bold', fontFamily: 'monospace' },
+  brandSub: { color: '#9A7A5A', fontSize: 14, marginTop: 4 },
+  input: { backgroundColor: '#2A1210', color: '#fff', borderRadius: 10, padding: 14, marginBottom: 10, fontSize: 16, borderWidth: 1, borderColor: '#5A2820' },
+  pickerBtn: { backgroundColor: '#2A1210', borderRadius: 10, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: '#5A2820', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  pickerLabel: { color: '#9A7A5A', fontSize: 12, marginBottom: 3 },
+  pickerValue: { color: '#C8922A', fontSize: 15, fontWeight: '600' },
+  pickerPlaceholder: { color: '#5A2820', fontSize: 15 },
+  pickerArrow: { color: '#5A2820', fontSize: 24 },
+  switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#2A1210', borderRadius: 10, padding: 14, marginBottom: 10 },
   switchLabel: { color: '#fff', fontSize: 16 },
-  button: { backgroundColor: '#e8b84b', borderRadius: 10, padding: 16, alignItems: 'center', marginTop: 12, marginBottom: 32 },
+  button: { backgroundColor: '#C8922A', borderRadius: 10, padding: 16, alignItems: 'center', marginTop: 12, marginBottom: 32 },
   buttonText: { color: '#000', fontWeight: 'bold', fontSize: 16 },
 });

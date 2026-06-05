@@ -51,7 +51,7 @@ export default function HerdDetailScreen({ navigation, route }: Props) {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#e8b84b" style={{ flex: 1 }} />
+        <ActivityIndicator size="large" color="#C8922A" style={{ flex: 1 }} />
       ) : (
         <FlatList
           data={horses}
@@ -86,21 +86,21 @@ export default function HerdDetailScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f0f1a' },
-  stats: { flexDirection: 'row', backgroundColor: '#1a1a2e', padding: 16, gap: 12 },
-  statBox: { flex: 1, alignItems: 'center', backgroundColor: '#0f0f1a', borderRadius: 10, padding: 12 },
-  statNum: { color: '#e8b84b', fontSize: 28, fontWeight: 'bold' },
-  statLabel: { color: '#888', fontSize: 12, marginTop: 2 },
-  empty: { color: '#666', textAlign: 'center', marginTop: 60, fontSize: 16 },
-  card: { backgroundColor: '#1a1a2e', borderRadius: 12, padding: 16, marginBottom: 10, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#2a2a4a' },
+  container: { flex: 1, backgroundColor: '#1C0A0A' },
+  stats: { flexDirection: 'row', backgroundColor: '#2A1210', padding: 16, gap: 12 },
+  statBox: { flex: 1, alignItems: 'center', backgroundColor: '#1C0A0A', borderRadius: 10, padding: 12 },
+  statNum: { color: '#C8922A', fontSize: 28, fontWeight: 'bold' },
+  statLabel: { color: '#9A7A5A', fontSize: 12, marginTop: 2 },
+  empty: { color: '#5A3A2A', textAlign: 'center', marginTop: 60, fontSize: 16 },
+  card: { backgroundColor: '#2A1210', borderRadius: 12, padding: 16, marginBottom: 10, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#5A2820' },
   cardLeft: { marginRight: 16, alignItems: 'center', minWidth: 70 },
-  brand: { color: '#e8b84b', fontSize: 20, fontWeight: 'bold', fontFamily: 'monospace' },
-  sexBadge: { color: '#888', fontSize: 11, marginTop: 4 },
+  brand: { color: '#C8922A', fontSize: 20, fontWeight: 'bold', fontFamily: 'monospace' },
+  sexBadge: { color: '#9A7A5A', fontSize: 11, marginTop: 4 },
   cardRight: { flex: 1 },
   horseName: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  year: { color: '#888', fontSize: 13, marginTop: 2 },
-  breed: { color: '#666', fontSize: 12, marginTop: 1 },
-  arrow: { color: '#444', fontSize: 24 },
-  fab: { position: 'absolute', bottom: 24, right: 24, backgroundColor: '#e8b84b', width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', elevation: 4 },
+  year: { color: '#9A7A5A', fontSize: 13, marginTop: 2 },
+  breed: { color: '#5A3A2A', fontSize: 12, marginTop: 1 },
+  arrow: { color: '#5A2820', fontSize: 24 },
+  fab: { position: 'absolute', bottom: 24, right: 24, backgroundColor: '#C8922A', width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', elevation: 4 },
   fabText: { fontSize: 28, color: '#000', fontWeight: 'bold', marginTop: -2 },
 });

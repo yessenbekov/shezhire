@@ -83,7 +83,7 @@ export default function HorseDetailScreen({ navigation, route }: Props) {
     setLoading(false);
   }
 
-  if (loading) return <ActivityIndicator size="large" color="#e8b84b" style={{ flex: 1, backgroundColor: '#0f0f1a' }} />;
+  if (loading) return <ActivityIndicator size="large" color="#C8922A" style={{ flex: 1, backgroundColor: '#1C0A0A' }} />;
   if (!horse) return <View style={styles.container}><Text style={{ color: '#fff' }}>Табылмады</Text></View>;
 
   return (
@@ -176,27 +176,27 @@ function PedigreeLink({ label, horse, onPress }: { label: string; horse?: Horse 
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f0f1a' },
+  container: { flex: 1, backgroundColor: '#1C0A0A' },
   header: { flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 8 },
-  brand: { color: '#e8b84b', fontSize: 36, fontWeight: 'bold', fontFamily: 'monospace' },
-  sexLabel: { color: '#888', fontSize: 18 },
+  brand: { color: '#C8922A', fontSize: 36, fontWeight: 'bold', fontFamily: 'monospace' },
+  sexLabel: { color: '#9A7A5A', fontSize: 18 },
   horseName: { color: '#fff', fontSize: 24, fontWeight: '600', marginBottom: 16 },
-  infoGrid: { backgroundColor: '#1a1a2e', borderRadius: 12, padding: 16, marginBottom: 20 },
-  infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderColor: '#2a2a4a' },
-  infoLabel: { color: '#888', fontSize: 14 },
+  infoGrid: { backgroundColor: '#2A1210', borderRadius: 12, padding: 16, marginBottom: 20 },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderColor: '#5A2820' },
+  infoLabel: { color: '#9A7A5A', fontSize: 14 },
   infoValue: { color: '#fff', fontSize: 14, fontWeight: '500' },
-  section: { color: '#e8b84b', fontSize: 13, fontWeight: '600', marginBottom: 10, marginTop: 4, textTransform: 'uppercase', letterSpacing: 1 },
-  pedigreeBox: { backgroundColor: '#1a1a2e', borderRadius: 12, padding: 16, marginBottom: 12 },
+  section: { color: '#C8922A', fontSize: 13, fontWeight: '600', marginBottom: 10, marginTop: 4, textTransform: 'uppercase', letterSpacing: 1 },
+  pedigreeBox: { backgroundColor: '#2A1210', borderRadius: 12, padding: 16, marginBottom: 12 },
   pedigreeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
-  pedigreeLabel: { color: '#888', fontSize: 15, width: 80 },
-  pedigreeLink: { color: '#e8b84b', fontSize: 15, fontWeight: '600' },
-  pedigreeEmpty: { color: '#555', fontSize: 15 },
-  treeButton: { backgroundColor: '#1a2e1a', borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 20, borderWidth: 1, borderColor: '#2a4a2a' },
-  treeButtonText: { color: '#6aff6a', fontSize: 16, fontWeight: '600' },
-  kidCard: { backgroundColor: '#1a1a2e', borderRadius: 10, padding: 12, marginBottom: 8, flexDirection: 'row', alignItems: 'center', gap: 10 },
-  kidBrand: { color: '#e8b84b', fontSize: 16, fontWeight: 'bold', fontFamily: 'monospace' },
+  pedigreeLabel: { color: '#9A7A5A', fontSize: 15, width: 80 },
+  pedigreeLink: { color: '#C8922A', fontSize: 15, fontWeight: '600' },
+  pedigreeEmpty: { color: '#4A2A1A', fontSize: 15 },
+  treeButton: { backgroundColor: '#1A4A44', borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 20, borderWidth: 1, borderColor: '#1A4A44' },
+  treeButtonText: { color: '#2D7D6F', fontSize: 16, fontWeight: '600' },
+  kidCard: { backgroundColor: '#2A1210', borderRadius: 10, padding: 12, marginBottom: 8, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  kidBrand: { color: '#C8922A', fontSize: 16, fontWeight: 'bold', fontFamily: 'monospace' },
   kidSex: { fontSize: 16 },
   kidName: { color: '#fff', flex: 1 },
-  kidYear: { color: '#888', fontSize: 13 },
-  notes: { color: '#aaa', fontSize: 14, backgroundColor: '#1a1a2e', borderRadius: 10, padding: 14, lineHeight: 20 },
+  kidYear: { color: '#9A7A5A', fontSize: 13 },
+  notes: { color: '#aaa', fontSize: 14, backgroundColor: '#2A1210', borderRadius: 10, padding: 14, lineHeight: 20 },
 });

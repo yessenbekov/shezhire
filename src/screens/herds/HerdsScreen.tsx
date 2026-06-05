@@ -56,7 +56,7 @@ export default function HerdsScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator size="large" color="#e8b84b" style={{ flex: 1 }} />
+        <ActivityIndicator size="large" color="#C8922A" style={{ flex: 1 }} />
       ) : (
         <FlatList
           data={herds}
@@ -91,7 +91,7 @@ export default function HerdsScreen({ navigation }: Props) {
             <TextInput
               style={styles.input}
               placeholder="Атауы (мысалы: Солтүстік табун)"
-              placeholderTextColor="#666"
+              placeholderTextColor="#5A3A2A"
               value={newName}
               onChangeText={setNewName}
               returnKeyType="next"
@@ -100,7 +100,7 @@ export default function HerdsScreen({ navigation }: Props) {
             <TextInput
               style={styles.input}
               placeholder="Орналасуы (міндетті емес)"
-              placeholderTextColor="#666"
+              placeholderTextColor="#5A3A2A"
               value={newLocation}
               onChangeText={setNewLocation}
               returnKeyType="done"
@@ -122,20 +122,20 @@ export default function HerdsScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f0f1a' },
-  empty: { color: '#666', textAlign: 'center', marginTop: 60, fontSize: 16 },
-  card: { backgroundColor: '#1a1a2e', borderRadius: 12, padding: 18, marginBottom: 12, borderWidth: 1, borderColor: '#2a2a4a' },
+  container: { flex: 1, backgroundColor: '#1C0A0A' },
+  empty: { color: '#5A3A2A', textAlign: 'center', marginTop: 60, fontSize: 16 },
+  card: { backgroundColor: '#2A1210', borderRadius: 12, padding: 18, marginBottom: 12, borderWidth: 1, borderColor: '#5A2820' },
   cardTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  cardSub: { color: '#888', marginTop: 4 },
-  fab: { position: 'absolute', bottom: 24, right: 24, backgroundColor: '#e8b84b', width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', elevation: 4 },
+  cardSub: { color: '#9A7A5A', marginTop: 4 },
+  fab: { position: 'absolute', bottom: 24, right: 24, backgroundColor: '#C8922A', width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', elevation: 4 },
   fabText: { fontSize: 28, color: '#000', fontWeight: 'bold', marginTop: -2 },
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
-  modal: { backgroundColor: '#1a1a2e', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24 },
-  modalTitle: { color: '#e8b84b', fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
-  input: { backgroundColor: '#0f0f1a', color: '#fff', borderRadius: 10, padding: 14, marginBottom: 12, fontSize: 16, borderWidth: 1, borderColor: '#333' },
+  overlay: { flex: 1, backgroundColor: 'rgba(28,10,10,0.88)', justifyContent: 'flex-end' },
+  modal: { backgroundColor: '#2A1210', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24 },
+  modalTitle: { color: '#C8922A', fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
+  input: { backgroundColor: '#1C0A0A', color: '#fff', borderRadius: 10, padding: 14, marginBottom: 12, fontSize: 16, borderWidth: 1, borderColor: '#5A2820' },
   row: { flexDirection: 'row', gap: 12, marginTop: 4 },
   btn: { flex: 1, borderRadius: 10, padding: 14, alignItems: 'center' },
-  btnCancel: { backgroundColor: '#2a2a4a' },
-  btnAdd: { backgroundColor: '#e8b84b' },
+  btnCancel: { backgroundColor: '#5A2820' },
+  btnAdd: { backgroundColor: '#C8922A' },
   btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });

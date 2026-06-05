@@ -37,7 +37,7 @@ export default function SearchScreen() {
         <TextInput
           style={styles.input}
           placeholder="Клеймо, кличка немесе тұқым..."
-          placeholderTextColor="#555"
+          placeholderTextColor="#4A2A1A"
           value={query}
           onChangeText={q => { setQuery(q); search(q); }}
           autoCapitalize="none"
@@ -49,7 +49,7 @@ export default function SearchScreen() {
         )}
       </View>
 
-      {loading && <ActivityIndicator size="small" color="#e8b84b" style={{ marginTop: 20 }} />}
+      {loading && <ActivityIndicator size="small" color="#C8922A" style={{ marginTop: 20 }} />}
 
       {!loading && searched && results.length === 0 && (
         <Text style={styles.empty}>Табылмады</Text>
@@ -86,20 +86,20 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0f0f1a' },
-  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1a1a2e', margin: 16, borderRadius: 12, paddingHorizontal: 14, borderWidth: 1, borderColor: '#2a2a4a' },
+  container: { flex: 1, backgroundColor: '#1C0A0A' },
+  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#2A1210', margin: 16, borderRadius: 12, paddingHorizontal: 14, borderWidth: 1, borderColor: '#5A2820' },
   searchIcon: { fontSize: 18, marginRight: 8 },
   input: { flex: 1, color: '#fff', fontSize: 16, paddingVertical: 14 },
-  clear: { color: '#666', fontSize: 18, paddingLeft: 8 },
-  empty: { color: '#666', textAlign: 'center', marginTop: 40, fontSize: 16 },
-  hint: { color: '#444', textAlign: 'center', marginTop: 60, fontSize: 14, paddingHorizontal: 40, lineHeight: 22 },
-  card: { backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14, marginBottom: 8, flexDirection: 'row', alignItems: 'center' },
+  clear: { color: '#5A3A2A', fontSize: 18, paddingLeft: 8 },
+  empty: { color: '#5A3A2A', textAlign: 'center', marginTop: 40, fontSize: 16 },
+  hint: { color: '#5A2820', textAlign: 'center', marginTop: 60, fontSize: 14, paddingHorizontal: 40, lineHeight: 22 },
+  card: { backgroundColor: '#2A1210', borderRadius: 12, padding: 14, marginBottom: 8, flexDirection: 'row', alignItems: 'center' },
   cardLeft: { alignItems: 'center', marginRight: 14, minWidth: 70 },
-  brand: { color: '#e8b84b', fontSize: 18, fontWeight: 'bold', fontFamily: 'monospace' },
+  brand: { color: '#C8922A', fontSize: 18, fontWeight: 'bold', fontFamily: 'monospace' },
   sex: { fontSize: 16, marginTop: 2 },
   cardRight: { flex: 1 },
   horseName: { color: '#fff', fontSize: 15, fontWeight: '600' },
-  year: { color: '#888', fontSize: 13, marginTop: 2 },
-  breed: { color: '#666', fontSize: 12 },
-  arrow: { color: '#444', fontSize: 22 },
+  year: { color: '#9A7A5A', fontSize: 13, marginTop: 2 },
+  breed: { color: '#5A3A2A', fontSize: 12 },
+  arrow: { color: '#5A2820', fontSize: 22 },
 });

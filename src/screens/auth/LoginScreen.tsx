@@ -37,7 +37,7 @@ export default function LoginScreen({ navigation }: Props) {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#666"
+          placeholderTextColor="#5A3A2A"
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -47,7 +47,7 @@ export default function LoginScreen({ navigation }: Props) {
         <TextInput
           style={styles.input}
           placeholder="Құпия сөз"
-          placeholderTextColor="#666"
+          placeholderTextColor="#5A3A2A"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -68,12 +68,12 @@ export default function LoginScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  outer: { flex: 1, backgroundColor: '#0f0f1a' },
+  outer: { flex: 1, backgroundColor: '#1C0A0A' },
   container: { flexGrow: 1, justifyContent: 'center', padding: 24 },
   logo: { fontSize: 48, textAlign: 'center', marginBottom: 8 },
-  subtitle: { fontSize: 16, color: '#e8b84b', textAlign: 'center', marginBottom: 48 },
-  input: { backgroundColor: '#1a1a2e', color: '#fff', borderRadius: 10, padding: 14, marginBottom: 12, fontSize: 16, borderWidth: 1, borderColor: '#333' },
-  button: { backgroundColor: '#e8b84b', borderRadius: 10, padding: 16, alignItems: 'center', marginTop: 8 },
+  subtitle: { fontSize: 16, color: '#C8922A', textAlign: 'center', marginBottom: 48 },
+  input: { backgroundColor: '#2A1210', color: '#fff', borderRadius: 10, padding: 14, marginBottom: 12, fontSize: 16, borderWidth: 1, borderColor: '#5A2820' },
+  button: { backgroundColor: '#C8922A', borderRadius: 10, padding: 16, alignItems: 'center', marginTop: 8 },
   buttonText: { color: '#000', fontWeight: 'bold', fontSize: 16 },
-  link: { color: '#e8b84b', textAlign: 'center', marginTop: 20, fontSize: 15 },
+  link: { color: '#C8922A', textAlign: 'center', marginTop: 20, fontSize: 15 },
 });
