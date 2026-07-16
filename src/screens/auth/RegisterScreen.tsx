@@ -6,7 +6,6 @@ import {
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as WebBrowser from 'expo-web-browser';
-import * as Linking from 'expo-linking';
 import { supabase } from '../../lib/supabase';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../../navigation';
@@ -73,7 +72,7 @@ export default function RegisterScreen({ navigation }: Props) {
 
   async function signInWithGoogle() {
     setGoogleLoading(true);
-    const redirectUrl = Linking.createURL('auth-callback');
+    const redirectUrl = 'shezhire://auth-callback';
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: redirectUrl, skipBrowserRedirect: true },
@@ -85,8 +84,7 @@ export default function RegisterScreen({ navigation }: Props) {
     }
     const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
     if (result.type === 'success') {
-      const params = new URL(result.url).searchParams;
-      const code = params.get('code');
+      const code = result.url.match(/[?&]code=([^&]+)/)?.[1];
       if (code) await supabase.auth.exchangeCodeForSession(code);
     }
     setGoogleLoading(false);

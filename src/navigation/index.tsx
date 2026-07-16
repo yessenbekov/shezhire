@@ -144,22 +144,16 @@ function MainNavigator() {
 }
 
 async function handleAuthDeepLink(url: string) {
-  try {
-    const parsed = new URL(url);
-    const code = parsed.searchParams.get('code');
-    if (code) {
-      await supabase.auth.exchangeCodeForSession(code);
-      return;
-    }
-    // implicit flow — tokens in hash fragment
-    const hash = parsed.hash;
-    if (hash) {
-      const hp = new URLSearchParams(hash.replace(/^#/, ''));
-      const access_token = hp.get('access_token');
-      const refresh_token = hp.get('refresh_token') ?? '';
-      if (access_token) await supabase.auth.setSession({ access_token, refresh_token });
-    }
-  } catch {}
+  if (!url.startsWith('shezhire://')) return;
+  const code = url.match(/[?&]code=([^&]+)/)?.[1];
+  if (code) {
+    await supabase.auth.exchangeCodeForSession(code);
+    return;
+  }
+  // implicit flow — access_token in hash
+  const accessToken = url.match(/[#&]access_token=([^&]+)/)?.[1];
+  const refreshToken = url.match(/[#&]refresh_token=([^&]+)/)?.[1] ?? '';
+  if (accessToken) await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
 }
 
 export default function AppNavigator() {
