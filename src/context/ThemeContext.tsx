@@ -20,7 +20,7 @@ const ThemeContext = createContext<ThemeCtx>({
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setMode] = useState<ThemeMode>('dark');
+  const [mode, setMode] = useState<ThemeMode>('light');
   const [ageNames, setAgeNames] = useState<Record<string, string>>(DEFAULT_AGE_NAMES);
 
   useEffect(() => {

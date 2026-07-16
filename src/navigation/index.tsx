@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../lib/supabase';
 import { useTheme } from '../context/ThemeContext';
 import IconHorse from '../components/icons/IconHorse';
@@ -76,10 +77,12 @@ function HerdsNavigator() {
 
 function MainNavigator() {
   const { C } = useTheme();
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = 54 + insets.bottom;
   return (
     <MainTab.Navigator
       screenOptions={{
-        tabBarStyle: { backgroundColor: C.surface, borderTopColor: C.border, borderTopWidth: 1, height: 60, paddingBottom: 8, paddingTop: 6 },
+        tabBarStyle: { backgroundColor: C.surface, borderTopColor: C.border, borderTopWidth: 1, height: tabBarHeight, paddingBottom: insets.bottom + 4, paddingTop: 6 },
         tabBarActiveTintColor: C.gold,
         tabBarInactiveTintColor: C.faint,
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600', letterSpacing: 0.3 },

@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../context/ThemeContext';
 import { getAgeName } from '../../utils/horseAge';
@@ -18,7 +19,8 @@ type Props = {
 export default function HerdDetailScreen({ navigation, route }: Props) {
   const { herdId } = route.params;
   const { C, ageNames } = useTheme();
-  const styles = useMemo(() => makeStyles(C), [C]);
+  const insets = useSafeAreaInsets();
+  const styles = useMemo(() => makeStyles(C, insets.bottom), [C, insets.bottom]);
 
   const [horses, setHorses] = useState<Horse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,7 +109,7 @@ export default function HerdDetailScreen({ navigation, route }: Props) {
   );
 }
 
-const makeStyles = (C: Colors) => StyleSheet.create({
+const makeStyles = (C: Colors, safeBottom: number) => StyleSheet.create({
   container: { flex: 1, backgroundColor: C.bg },
   statsBar: { flexDirection: 'row', backgroundColor: C.surface, paddingVertical: 16, borderBottomWidth: 1, borderColor: C.border },
   statItem: { flex: 1, alignItems: 'center' },
@@ -130,7 +132,7 @@ const makeStyles = (C: Colors) => StyleSheet.create({
   deadTag: { color: '#C84A4A', fontSize: 11, marginTop: 2 },
   arrow: { color: C.border, fontSize: 22, paddingRight: 14 },
   fab: {
-    position: 'absolute', bottom: 28, right: 24, backgroundColor: C.gold,
+    position: 'absolute', bottom: 28 + safeBottom, right: 24, backgroundColor: C.gold,
     width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center',
     shadowColor: C.gold, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 8,
   },

@@ -4,6 +4,7 @@ import {
   Modal, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../context/ThemeContext';
 import type { Colors } from '../../theme';
@@ -16,7 +17,8 @@ type Props = { navigation: NativeStackNavigationProp<HerdsStackParamList, 'Herds
 
 export default function HerdsScreen({ navigation }: Props) {
   const { C } = useTheme();
-  const styles = useMemo(() => makeStyles(C), [C]);
+  const insets = useSafeAreaInsets();
+  const styles = useMemo(() => makeStyles(C, insets.bottom), [C, insets.bottom]);
 
   const [herds, setHerds] = useState<HerdWithCount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -170,7 +172,7 @@ export default function HerdsScreen({ navigation }: Props) {
   );
 }
 
-const makeStyles = (C: Colors) => StyleSheet.create({
+const makeStyles = (C: Colors, safeBottom: number) => StyleSheet.create({
   container: { flex: 1, backgroundColor: C.bg },
   emptyWrap: { alignItems: 'center', paddingTop: 80 },
   emptyIcon: { fontSize: 56, marginBottom: 16 },
@@ -189,7 +191,7 @@ const makeStyles = (C: Colors) => StyleSheet.create({
   moreBtn: { paddingHorizontal: 16, paddingVertical: 20 },
   moreText: { color: C.muted, fontSize: 22, letterSpacing: 2 },
   fab: {
-    position: 'absolute', bottom: 28, right: 24, backgroundColor: C.gold,
+    position: 'absolute', bottom: 28 + safeBottom, right: 24, backgroundColor: C.gold,
     width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center',
     shadowColor: C.gold, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 8,
   },
