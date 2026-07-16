@@ -31,6 +31,7 @@ export default function AddHorseScreen({ navigation, route }: Props) {
   const [dam, setDam] = useState<Horse | null>(null);
   const [notes, setNotes] = useState('');
   const [isPublic, setIsPublic] = useState(true);
+  const [isLead, setIsLead] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showSirePicker, setShowSirePicker] = useState(false);
   const [showDamPicker, setShowDamPicker] = useState(false);
@@ -65,6 +66,7 @@ export default function AddHorseScreen({ navigation, route }: Props) {
       dam_id: dam?.id ?? null,
       notes: notes.trim() || null,
       is_public: isPublic,
+      is_lead: isLead,
     });
 
     if (error) Alert.alert(t.error, error.message);
@@ -134,6 +136,11 @@ export default function AddHorseScreen({ navigation, route }: Props) {
             onChangeText={setNotes}
             multiline
           />
+
+          <View style={styles.switchRow}>
+            <Text style={styles.switchLabel}>{t.horse_isLead}</Text>
+            <Switch value={isLead} onValueChange={setIsLead} trackColor={{ true: C.gold }} />
+          </View>
 
           <View style={styles.switchRow}>
             <Text style={styles.switchLabel}>{t.horse_public}</Text>

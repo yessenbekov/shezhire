@@ -36,7 +36,14 @@ export default function HerdDetailScreen({ navigation, route }: Props) {
       .select('*')
       .eq('herd_id', herdId)
       .order('sequence_no', { ascending: true });
-    if (!error && data) setHorses(data as Horse[]);
+  if (!error && data) {
+      const sorted = [...(data as Horse[])].sort((a, b) => {
+        if (a.is_lead && !b.is_lead) return -1;
+        if (!a.is_lead && b.is_lead) return 1;
+        return a.sequence_no - b.sequence_no;
+      });
+      setHorses(sorted);
+    }
     setLoading(false);
   }
 
@@ -82,17 +89,24 @@ export default function HerdDetailScreen({ navigation, route }: Props) {
             const isDead = (item.disposition && item.disposition !== 'alive') || !!item.died_at;
             return (
               <TouchableOpacity
-                style={[styles.card, isDead && { opacity: 0.55 }]}
+                style={[styles.card, item.is_lead && { borderColor: C.gold, borderWidth: 1.5 }, isDead && { opacity: 0.55 }]}
                 onPress={() => navigation.navigate('HorseDetail', { horseId: item.id })}
                 activeOpacity={0.75}
               >
-                <View style={[styles.sexStrip, { backgroundColor: isMale ? C.maleBorder : C.femaleBorder }]} />
+                <View style={[styles.sexStrip, { backgroundColor: item.is_lead ? C.gold : isMale ? C.maleBorder : C.femaleBorder }]} />
                 <View style={[styles.brandWrap, { backgroundColor: isMale ? C.maleBg : C.femaleBg }]}>
                   <Text style={[styles.brand, { color: isMale ? C.male : C.female }]}>{item.brand}</Text>
                   <Text style={[styles.sexIcon, { color: isMale ? C.male : C.female }]}>{isMale ? '♂' : '♀'}</Text>
                 </View>
                 <View style={styles.cardInfo}>
-                  {item.name ? <Text style={styles.horseName}>{item.name}</Text> : null}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    {item.name ? <Text style={styles.horseName}>{item.name}</Text> : null}
+                    {item.is_lead && (
+                      <View style={[styles.leadBadge, { backgroundColor: C.gold + '22', borderColor: C.gold }]}>
+                        <Text style={[styles.leadBadgeText, { color: C.gold }]}>⭐ {t.horse_isLeadBadge}</Text>
+                      </View>
+                    )}
+                  </View>
                   <Text style={styles.ageName}>{ageName} · {item.birth_year}</Text>
                   {item.breed ? <Text style={styles.breed}>{item.breed}</Text> : null}
                   {isDead ? <Text style={styles.deadTag}>🕊 {t.disp_dead.toLowerCase()}</Text> : null}
@@ -132,6 +146,8 @@ const makeStyles = (C: Colors, safeBottom: number) => StyleSheet.create({
   ageName: { color: C.muted, fontSize: 13, marginTop: 2 },
   breed: { color: C.faint, fontSize: 12, marginTop: 1 },
   deadTag: { color: '#C84A4A', fontSize: 11, marginTop: 2 },
+  leadBadge: { borderRadius: 6, borderWidth: 1, paddingHorizontal: 6, paddingVertical: 2 },
+  leadBadgeText: { fontSize: 10, fontWeight: '700' },
   arrow: { color: C.border, fontSize: 22, paddingRight: 14 },
   fab: {
     position: 'absolute', bottom: 28 + safeBottom, right: 24, backgroundColor: C.gold,

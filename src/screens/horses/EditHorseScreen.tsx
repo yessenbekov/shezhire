@@ -36,6 +36,7 @@ export default function EditHorseScreen({ navigation, route }: Props) {
   const [dam, setDam] = useState<Horse | null>(null);
   const [notes, setNotes] = useState('');
   const [isPublic, setIsPublic] = useState(true);
+  const [isLead, setIsLead] = useState(false);
   const [showSirePicker, setShowSirePicker] = useState(false);
   const [showDamPicker, setShowDamPicker] = useState(false);
 
@@ -57,6 +58,7 @@ export default function EditHorseScreen({ navigation, route }: Props) {
     setColor(data.color ?? '');
     setNotes(data.notes ?? '');
     setIsPublic(data.is_public);
+    setIsLead(data.is_lead ?? false);
 
     const [{ data: sireData }, { data: damData }] = await Promise.all([
       data.sire_id ? supabase.from('shezhire_horses').select('*').eq('id', data.sire_id).single() : Promise.resolve({ data: null }),
@@ -78,6 +80,7 @@ export default function EditHorseScreen({ navigation, route }: Props) {
       dam_id: dam?.id ?? null,
       notes: notes.trim() || null,
       is_public: isPublic,
+      is_lead: isLead,
     }).eq('id', horseId);
     if (error) Alert.alert(t.error, error.message);
     else navigation.goBack();
@@ -139,6 +142,11 @@ export default function EditHorseScreen({ navigation, route }: Props) {
           </TouchableOpacity>
 
           <TextInput style={[styles.input, { height: 80, marginTop: 4 }]} placeholder={t.horse_notesPlaceholder} placeholderTextColor={C.faint} value={notes} onChangeText={setNotes} multiline />
+
+          <View style={styles.switchRow}>
+            <Text style={styles.switchLabel}>{t.horse_isLead}</Text>
+            <Switch value={isLead} onValueChange={setIsLead} trackColor={{ true: C.gold }} />
+          </View>
 
           <View style={styles.switchRow}>
             <Text style={styles.switchLabel}>{t.horse_public}</Text>

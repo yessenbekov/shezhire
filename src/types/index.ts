@@ -25,6 +25,7 @@ export interface Horse {
   photo_url: string | null;
   notes: string | null;
   is_public: boolean;
+  is_lead: boolean;
   died_at: string | null;
   disposition: 'alive' | 'dead' | 'sold' | 'slaughtered' | 'other' | null;
   disposition_notes: string | null;
