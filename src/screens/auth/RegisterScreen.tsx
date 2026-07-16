@@ -84,11 +84,19 @@ export default function RegisterScreen({ navigation }: Props) {
     }
     const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
     if (result.type === 'success') {
-      const code = result.url.match(/[?&]code=([^&]+)/)?.[1];
-      if (code) { await supabase.auth.exchangeCodeForSession(code); setGoogleLoading(false); return; }
       const access_token = result.url.match(/[#&]access_token=([^&]+)/)?.[1];
       const refresh_token = result.url.match(/[#&]refresh_token=([^&]+)/)?.[1] ?? '';
-      if (access_token) await supabase.auth.setSession({ access_token, refresh_token });
+      if (access_token) {
+        const { error: sessErr } = await supabase.auth.setSession({ access_token, refresh_token });
+        if (sessErr) Alert.alert('Қате', sessErr.message);
+        setGoogleLoading(false);
+        return;
+      }
+      const code = result.url.match(/[?&]code=([^&]+)/)?.[1];
+      if (code) {
+        const { error: exchErr } = await supabase.auth.exchangeCodeForSession(code);
+        if (exchErr) Alert.alert('Қате', exchErr.message);
+      }
     }
     setGoogleLoading(false);
   }

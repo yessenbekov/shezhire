@@ -71,22 +71,21 @@ export default function LoginScreen({ navigation }: Props) {
     }
     const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
     if (result.type === 'success') {
-      const code = result.url.match(/[?&]code=([^&]+)/)?.[1];
-      if (code) {
-        const { error: exchErr } = await supabase.auth.exchangeCodeForSession(code);
-        if (exchErr) Alert.alert('DEBUG exchange error', exchErr.message);
-        setGoogleLoading(false);
-        return;
-      }
+      // Implicit flow: tokens in hash fragment
       const access_token = result.url.match(/[#&]access_token=([^&]+)/)?.[1];
       const refresh_token = result.url.match(/[#&]refresh_token=([^&]+)/)?.[1] ?? '';
       if (access_token) {
-        await supabase.auth.setSession({ access_token, refresh_token });
-      } else {
-        Alert.alert('DEBUG no token', result.url.slice(0, 200));
+        const { error: sessErr } = await supabase.auth.setSession({ access_token, refresh_token });
+        if (sessErr) Alert.alert('Қате', sessErr.message);
+        setGoogleLoading(false);
+        return;
       }
-    } else {
-      Alert.alert('DEBUG browser closed', `type=${result.type}`);
+      // PKCE fallback: code in query param
+      const code = result.url.match(/[?&]code=([^&]+)/)?.[1];
+      if (code) {
+        const { error: exchErr } = await supabase.auth.exchangeCodeForSession(code);
+        if (exchErr) Alert.alert('Қате', exchErr.message);
+      }
     }
     setGoogleLoading(false);
   }
