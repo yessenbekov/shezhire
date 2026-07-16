@@ -38,8 +38,7 @@
           "photosPermission": "Лошадь суретін қосу үшін рұқсат беріңіз."
         }
       ],
-      "expo-web-browser",
-      "expo-print"
+      "expo-web-browser"
     ],
     "scheme": "shezhire",
     "extra": {
