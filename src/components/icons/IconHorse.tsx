@@ -1,45 +1,26 @@
 import React from 'react';
 import Svg, { Path, Circle } from 'react-native-svg';
 
-interface Props {
-  size?: number;
-  color?: string;
-}
+interface Props { size?: number; color?: string }
 
 export default function IconHorse({ size = 26, color = '#C8922A' }: Props) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      {/* Тело */}
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      {/* Horse head silhouette – chess-knight profile, facing right */}
       <Path
-        d="M6 22 C6 22 5 18 7 15 C9 12 11 11 13 11 L15 11 C17 11 19 10 20 8 C21 6 21 4 20 3"
-        stroke={color} strokeWidth="2" strokeLinecap="round" fill="none"
+        d="M12 5 L14 2 L16 2 L17 5
+           C18.5 5.5 20 8 20 11.5
+           C20 15.5 18.5 18.5 16.5 20.5
+           C14.5 22.5 11.5 22.5 9.5 20.5
+           C7.5 18.5 7.5 15.5 8.5 12.5
+           C7.5 9.5 7.5 6.5 9 5
+           C10 3.5 11.5 4.5 12 5 Z"
+        fill={color}
       />
-      {/* Голова */}
-      <Path
-        d="M20 3 C21 2 23 2 24 3 C25 4 25 6 24 7 C23 8 21 8 20 8"
-        stroke={color} strokeWidth="2" strokeLinecap="round" fill="none"
-      />
-      {/* Грива */}
-      <Path
-        d="M20 4 C19 3 18 3 17 4 C16 5 16 7 17 8"
-        stroke={color} strokeWidth="1.5" strokeLinecap="round" fill="none"
-      />
-      {/* Ноздря */}
-      <Circle cx="24" cy="6" r="0.8" fill={color} />
-      {/* Спина и зад */}
-      <Path
-        d="M13 11 C15 11 18 12 20 14 C22 16 22 19 21 21 C20 23 18 24 16 24"
-        stroke={color} strokeWidth="2" strokeLinecap="round" fill="none"
-      />
-      {/* Ноги передние */}
-      <Path d="M9 18 L8 26 M11 18 L11 26" stroke={color} strokeWidth="2" strokeLinecap="round" />
-      {/* Ноги задние */}
-      <Path d="M16 22 L15 29 M19 21 L19 28" stroke={color} strokeWidth="2" strokeLinecap="round" />
-      {/* Хвост */}
-      <Path
-        d="M21 21 C23 20 25 21 26 23 C27 25 26 27 24 28"
-        stroke={color} strokeWidth="1.5" strokeLinecap="round" fill="none"
-      />
+      {/* Eye */}
+      <Circle cx="17" cy="9" r="1.1" fill="white" fillOpacity="0.55" />
+      {/* Nostril hint */}
+      <Circle cx="19.5" cy="19" r="0.7" fill="white" fillOpacity="0.35" />
     </Svg>
   );
 }
