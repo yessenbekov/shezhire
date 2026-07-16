@@ -82,11 +82,7 @@ export default function RegisterScreen({ navigation }: Props) {
       setGoogleLoading(false);
       return;
     }
-    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
-    if (result.type === 'success') {
-      const code = result.url.match(/[?&]code=([^&]+)/)?.[1];
-      if (code) await supabase.auth.exchangeCodeForSession(code);
-    }
+    await WebBrowser.openBrowserAsync(data.url);
     setGoogleLoading(false);
   }
 

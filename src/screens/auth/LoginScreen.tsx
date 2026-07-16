@@ -69,11 +69,9 @@ export default function LoginScreen({ navigation }: Props) {
       setGoogleLoading(false);
       return;
     }
-    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
-    if (result.type === 'success') {
-      const code = result.url.match(/[?&]code=([^&]+)/)?.[1];
-      if (code) await supabase.auth.exchangeCodeForSession(code);
-    }
+    // Open browser — system URL handler will catch shezhire://auth-callback
+    // and fire Linking event which is handled in AppNavigator
+    await WebBrowser.openBrowserAsync(data.url);
     setGoogleLoading(false);
   }
 

@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
 import { supabase } from '../lib/supabase';
 import { useTheme } from '../context/ThemeContext';
 import { useT } from '../i18n';
@@ -145,6 +146,7 @@ function MainNavigator() {
 
 async function handleAuthDeepLink(url: string) {
   if (!url.startsWith('shezhire://')) return;
+  WebBrowser.dismissBrowser();
   const code = url.match(/[?&]code=([^&]+)/)?.[1];
   if (code) {
     await supabase.auth.exchangeCodeForSession(code);
