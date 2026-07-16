@@ -82,7 +82,14 @@ export default function RegisterScreen({ navigation }: Props) {
       setGoogleLoading(false);
       return;
     }
-    await WebBrowser.openBrowserAsync(data.url);
+    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
+    if (result.type === 'success') {
+      const code = result.url.match(/[?&]code=([^&]+)/)?.[1];
+      if (code) { await supabase.auth.exchangeCodeForSession(code); setGoogleLoading(false); return; }
+      const access_token = result.url.match(/[#&]access_token=([^&]+)/)?.[1];
+      const refresh_token = result.url.match(/[#&]refresh_token=([^&]+)/)?.[1] ?? '';
+      if (access_token) await supabase.auth.setSession({ access_token, refresh_token });
+    }
     setGoogleLoading(false);
   }
 

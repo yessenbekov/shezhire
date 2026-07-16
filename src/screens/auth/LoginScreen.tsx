@@ -69,9 +69,16 @@ export default function LoginScreen({ navigation }: Props) {
       setGoogleLoading(false);
       return;
     }
-    // Open browser — system URL handler will catch shezhire://auth-callback
-    // and fire Linking event which is handled in AppNavigator
-    await WebBrowser.openBrowserAsync(data.url);
+    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
+    if (result.type === 'success') {
+      // PKCE flow: ?code=xxx
+      const code = result.url.match(/[?&]code=([^&]+)/)?.[1];
+      if (code) { await supabase.auth.exchangeCodeForSession(code); setGoogleLoading(false); return; }
+      // Implicit flow fallback: #access_token=xxx
+      const access_token = result.url.match(/[#&]access_token=([^&]+)/)?.[1];
+      const refresh_token = result.url.match(/[#&]refresh_token=([^&]+)/)?.[1] ?? '';
+      if (access_token) await supabase.auth.setSession({ access_token, refresh_token });
+    }
     setGoogleLoading(false);
   }
 
