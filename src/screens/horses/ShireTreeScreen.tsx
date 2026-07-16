@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { supabase } from '../../lib/supabase';
+import { useTheme } from '../../context/ThemeContext';
+import type { Colors } from '../../theme';
 import type { Horse } from '../../types';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
@@ -20,26 +22,19 @@ interface TreeNode {
 
 async function buildTree(id: string | null, depth: number, maxDepth = 4): Promise<TreeNode> {
   if (!id || depth >= maxDepth) return { horse: null, sire: null, dam: null, depth };
-
-  const { data } = await supabase
-    .from('shezhire_horses')
-    .select('*')
-    .eq('id', id)
-    .single();
-
+  const { data } = await supabase.from('shezhire_horses').select('*').eq('id', id).single();
   if (!data) return { horse: null, sire: null, dam: null, depth };
-
   const horse = data as Horse;
   const [sire, dam] = await Promise.all([
     buildTree(horse.sire_id, depth + 1, maxDepth),
     buildTree(horse.dam_id, depth + 1, maxDepth),
   ]);
-
   return { horse, sire, dam, depth };
 }
 
 export default function ShireTreeScreen({ navigation, route }: Props) {
   const { horseId } = route.params;
+  const { C } = useTheme();
   const [tree, setTree] = useState<TreeNode | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -47,20 +42,21 @@ export default function ShireTreeScreen({ navigation, route }: Props) {
     buildTree(horseId, 0).then(t => { setTree(t); setLoading(false); });
   }, [horseId]);
 
-  if (loading) return <ActivityIndicator size="large" color="#C8922A" style={{ flex: 1, backgroundColor: '#1C0A0A' }} />;
+  if (loading) return <ActivityIndicator size="large" color={C.gold} style={{ flex: 1, backgroundColor: C.bg }} />;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ padding: 16 }} horizontal={false}>
+    <ScrollView style={{ flex: 1, backgroundColor: C.bg }} contentContainerStyle={{ padding: 16 }}>
       <ScrollView horizontal contentContainerStyle={{ minWidth: Dimensions.get('window').width }}>
-        <View style={styles.treeWrap}>
-          {tree && <TreeNodeView node={tree} navigation={navigation} />}
+        <View style={{ alignItems: 'center', paddingBottom: 40 }}>
+          {tree && <TreeNodeView node={tree} navigation={navigation} C={C} />}
         </View>
       </ScrollView>
     </ScrollView>
   );
 }
 
-function TreeNodeView({ node, navigation }: { node: TreeNode; navigation: any }) {
+function TreeNodeView({ node, navigation, C }: { node: TreeNode; navigation: any; C: Colors }) {
+  const styles = treeStyles(C);
   if (!node.horse) {
     return (
       <View style={styles.emptyNode}>
@@ -70,33 +66,34 @@ function TreeNodeView({ node, navigation }: { node: TreeNode; navigation: any })
   }
 
   const horse = node.horse;
+  const isMale = horse.sex === 'м';
 
   return (
-    <View style={styles.nodeContainer}>
+    <View style={{ alignItems: 'center' }}>
       {(node.sire || node.dam) && (
-        <View style={styles.parentsRow}>
-          <View style={styles.parentCol}>
-            {node.sire ? <TreeNodeView node={node.sire} navigation={navigation} /> : <EmptyNode />}
+        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 4 }}>
+          <View style={{ alignItems: 'center' }}>
+            {node.sire ? <TreeNodeView node={node.sire} navigation={navigation} C={C} /> : <EmptyTreeNode C={C} />}
           </View>
-          <View style={styles.parentCol}>
-            {node.dam ? <TreeNodeView node={node.dam} navigation={navigation} /> : <EmptyNode />}
+          <View style={{ alignItems: 'center' }}>
+            {node.dam ? <TreeNodeView node={node.dam} navigation={navigation} C={C} /> : <EmptyTreeNode C={C} />}
           </View>
         </View>
       )}
-
       <TouchableOpacity
-        style={[styles.node, horse.sex === 'м' ? styles.nodeMale : styles.nodeFemale]}
+        style={[styles.node, { backgroundColor: isMale ? C.maleBg : C.femaleBg, borderColor: isMale ? C.maleBorder : C.femaleBorder }]}
         onPress={() => navigation.navigate('HorseDetail', { horseId: horse.id })}
       >
-        <Text style={styles.nodeBrand}>{horse.brand}</Text>
-        {horse.name && <Text style={styles.nodeName}>{horse.name}</Text>}
-        <Text style={styles.nodeYear}>{horse.birth_year}</Text>
+        <Text style={[styles.nodeBrand, { color: C.gold }]}>{horse.brand}</Text>
+        {horse.name && <Text style={[styles.nodeName, { color: C.text }]}>{horse.name}</Text>}
+        <Text style={[styles.nodeYear, { color: C.muted }]}>{horse.birth_year}</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
-function EmptyNode() {
+function EmptyTreeNode({ C }: { C: Colors }) {
+  const styles = treeStyles(C);
   return (
     <View style={styles.emptyNode}>
       <Text style={styles.emptyText}>—</Text>
@@ -104,18 +101,11 @@ function EmptyNode() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1C0A0A' },
-  treeWrap: { alignItems: 'center', paddingBottom: 40 },
-  nodeContainer: { alignItems: 'center' },
-  parentsRow: { flexDirection: 'row', gap: 8, marginBottom: 4 },
-  parentCol: { alignItems: 'center' },
+const treeStyles = (C: Colors) => StyleSheet.create({
   node: { borderRadius: 10, padding: 12, minWidth: 100, alignItems: 'center', marginTop: 4, borderWidth: 2 },
-  nodeMale: { backgroundColor: '#0f1e2e', borderColor: '#4a8fc4' },
-  nodeFemale: { backgroundColor: '#2e0f1e', borderColor: '#c44a8f' },
-  nodeBrand: { color: '#C8922A', fontSize: 16, fontWeight: 'bold', fontFamily: 'monospace' },
-  nodeName: { color: '#fff', fontSize: 12, marginTop: 2 },
-  nodeYear: { color: '#9A7A5A', fontSize: 11, marginTop: 1 },
-  emptyNode: { backgroundColor: '#2A1210', borderRadius: 10, padding: 12, minWidth: 100, alignItems: 'center', borderWidth: 1, borderColor: '#5A2820', marginTop: 4 },
-  emptyText: { color: '#5A2820', fontSize: 18 },
+  nodeBrand: { fontSize: 16, fontWeight: 'bold', fontFamily: 'monospace' },
+  nodeName: { fontSize: 12, marginTop: 2 },
+  nodeYear: { fontSize: 11, marginTop: 1 },
+  emptyNode: { backgroundColor: C.surface, borderRadius: 10, padding: 12, minWidth: 100, alignItems: 'center', borderWidth: 1, borderColor: C.border, marginTop: 4 },
+  emptyText: { color: C.faint, fontSize: 18 },
 });

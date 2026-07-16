@@ -1,7 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
+import { useTheme } from '../../context/ThemeContext';
+import { getAgeName } from '../../utils/horseAge';
+import type { Colors } from '../../theme';
 import type { Horse } from '../../types';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
@@ -14,6 +17,9 @@ type Props = {
 
 export default function HerdDetailScreen({ navigation, route }: Props) {
   const { herdId } = route.params;
+  const { C, ageNames } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
+
   const [horses, setHorses] = useState<Horse[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,55 +32,71 @@ export default function HerdDetailScreen({ navigation, route }: Props) {
       .select('*')
       .eq('herd_id', herdId)
       .order('sequence_no', { ascending: true });
-    if (!error && data) setHorses(data);
+    if (!error && data) setHorses(data as Horse[]);
     setLoading(false);
   }
 
-  const mares = horses.filter(h => h.sex === 'ж');
   const stallions = horses.filter(h => h.sex === 'м');
+  const mares = horses.filter(h => h.sex === 'ж');
 
   return (
     <View style={styles.container}>
-      <View style={styles.stats}>
-        <View style={styles.statBox}>
+      <View style={styles.statsBar}>
+        <View style={styles.statItem}>
           <Text style={styles.statNum}>{horses.length}</Text>
           <Text style={styles.statLabel}>Барлығы</Text>
         </View>
-        <View style={styles.statBox}>
-          <Text style={styles.statNum}>{stallions.length}</Text>
-          <Text style={styles.statLabel}>Айғыр</Text>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={[styles.statNum, { color: C.male }]}>{stallions.length}</Text>
+          <Text style={styles.statLabel}>♂ Айғыр</Text>
         </View>
-        <View style={styles.statBox}>
-          <Text style={styles.statNum}>{mares.length}</Text>
-          <Text style={styles.statLabel}>Бие</Text>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={[styles.statNum, { color: C.female }]}>{mares.length}</Text>
+          <Text style={styles.statLabel}>♀ Бие</Text>
         </View>
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#C8922A" style={{ flex: 1 }} />
+        <ActivityIndicator size="large" color={C.gold} style={{ flex: 1 }} />
       ) : (
         <FlatList
           data={horses}
           keyExtractor={h => h.id}
-          contentContainerStyle={{ padding: 16 }}
-          ListEmptyComponent={<Text style={styles.empty}>Бұл табунда лошадь жоқ</Text>}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.card}
-              onPress={() => navigation.navigate('HorseDetail', { horseId: item.id })}
-            >
-              <View style={styles.cardLeft}>
-                <Text style={styles.brand}>{item.brand}</Text>
-                <Text style={styles.sexBadge}>{item.sex === 'м' ? '♂ Айғыр' : '♀ Бие'}</Text>
-              </View>
-              <View style={styles.cardRight}>
-                {item.name && <Text style={styles.horseName}>{item.name}</Text>}
-                <Text style={styles.year}>{item.birth_year} ж.</Text>
-                {item.breed && <Text style={styles.breed}>{item.breed}</Text>}
-              </View>
-              <Text style={styles.arrow}>›</Text>
-            </TouchableOpacity>
-          )}
+          contentContainerStyle={{ padding: 14, paddingBottom: 100 }}
+          ListEmptyComponent={
+            <View style={styles.emptyWrap}>
+              <Text style={styles.emptyIcon}>🐎</Text>
+              <Text style={styles.emptyTitle}>Бұл табунда лошадь жоқ</Text>
+              <Text style={styles.emptySub}>«+» басып жаңа лошадь қосыңыз</Text>
+            </View>
+          }
+          renderItem={({ item }) => {
+            const isMale = item.sex === 'м';
+            const ageName = getAgeName(item.birth_year, item.sex, ageNames);
+            const isDead = !!item.died_at;
+            return (
+              <TouchableOpacity
+                style={[styles.card, isDead && { opacity: 0.55 }]}
+                onPress={() => navigation.navigate('HorseDetail', { horseId: item.id })}
+                activeOpacity={0.75}
+              >
+                <View style={[styles.sexStrip, { backgroundColor: isMale ? C.maleBorder : C.femaleBorder }]} />
+                <View style={[styles.brandWrap, { backgroundColor: isMale ? C.maleBg : C.femaleBg }]}>
+                  <Text style={[styles.brand, { color: isMale ? C.male : C.female }]}>{item.brand}</Text>
+                  <Text style={[styles.sexIcon, { color: isMale ? C.male : C.female }]}>{isMale ? '♂' : '♀'}</Text>
+                </View>
+                <View style={styles.cardInfo}>
+                  {item.name ? <Text style={styles.horseName}>{item.name}</Text> : null}
+                  <Text style={styles.ageName}>{ageName} · {item.birth_year} ж.</Text>
+                  {item.breed ? <Text style={styles.breed}>{item.breed}</Text> : null}
+                  {isDead ? <Text style={styles.deadTag}>🕊 қайтыс</Text> : null}
+                </View>
+                <Text style={styles.arrow}>›</Text>
+              </TouchableOpacity>
+            );
+          }}
         />
       )}
 
@@ -85,22 +107,32 @@ export default function HerdDetailScreen({ navigation, route }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1C0A0A' },
-  stats: { flexDirection: 'row', backgroundColor: '#2A1210', padding: 16, gap: 12 },
-  statBox: { flex: 1, alignItems: 'center', backgroundColor: '#1C0A0A', borderRadius: 10, padding: 12 },
-  statNum: { color: '#C8922A', fontSize: 28, fontWeight: 'bold' },
-  statLabel: { color: '#9A7A5A', fontSize: 12, marginTop: 2 },
-  empty: { color: '#5A3A2A', textAlign: 'center', marginTop: 60, fontSize: 16 },
-  card: { backgroundColor: '#2A1210', borderRadius: 12, padding: 16, marginBottom: 10, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#5A2820' },
-  cardLeft: { marginRight: 16, alignItems: 'center', minWidth: 70 },
-  brand: { color: '#C8922A', fontSize: 20, fontWeight: 'bold', fontFamily: 'monospace' },
-  sexBadge: { color: '#9A7A5A', fontSize: 11, marginTop: 4 },
-  cardRight: { flex: 1 },
-  horseName: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  year: { color: '#9A7A5A', fontSize: 13, marginTop: 2 },
-  breed: { color: '#5A3A2A', fontSize: 12, marginTop: 1 },
-  arrow: { color: '#5A2820', fontSize: 24 },
-  fab: { position: 'absolute', bottom: 24, right: 24, backgroundColor: '#C8922A', width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', elevation: 4 },
+const makeStyles = (C: Colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.bg },
+  statsBar: { flexDirection: 'row', backgroundColor: C.surface, paddingVertical: 16, borderBottomWidth: 1, borderColor: C.border },
+  statItem: { flex: 1, alignItems: 'center' },
+  statDivider: { width: 1, backgroundColor: C.border },
+  statNum: { color: C.gold, fontSize: 26, fontWeight: '800' },
+  statLabel: { color: C.muted, fontSize: 12, marginTop: 3 },
+  emptyWrap: { alignItems: 'center', paddingTop: 70 },
+  emptyIcon: { fontSize: 48, marginBottom: 12 },
+  emptyTitle: { color: C.text, fontSize: 16, fontWeight: '600', marginBottom: 6 },
+  emptySub: { color: C.faint, fontSize: 13 },
+  card: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 14, marginBottom: 10, overflow: 'hidden', borderWidth: 1, borderColor: C.border },
+  sexStrip: { width: 4, alignSelf: 'stretch' },
+  brandWrap: { paddingHorizontal: 14, paddingVertical: 16, alignItems: 'center', minWidth: 76 },
+  brand: { fontSize: 18, fontWeight: '800', fontFamily: 'monospace' },
+  sexIcon: { fontSize: 14, marginTop: 4 },
+  cardInfo: { flex: 1, paddingVertical: 14, paddingLeft: 6 },
+  horseName: { color: C.text, fontSize: 16, fontWeight: '600' },
+  ageName: { color: C.muted, fontSize: 13, marginTop: 2 },
+  breed: { color: C.faint, fontSize: 12, marginTop: 1 },
+  deadTag: { color: '#C84A4A', fontSize: 11, marginTop: 2 },
+  arrow: { color: C.border, fontSize: 22, paddingRight: 14 },
+  fab: {
+    position: 'absolute', bottom: 28, right: 24, backgroundColor: C.gold,
+    width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center',
+    shadowColor: C.gold, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 8,
+  },
   fabText: { fontSize: 28, color: '#000', fontWeight: 'bold', marginTop: -2 },
 });

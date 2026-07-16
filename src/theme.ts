@@ -1,27 +1,47 @@
-export const colors = {
-  // Негіздер / Backgrounds
-  bg:       '#1C0A0A',   // тёмный бордо — основной фон
-  surface:  '#2A1210',   // карточки, модалки
-  surface2: '#3A1A16',   // вторичные поверхности
-  border:   '#5A2820',   // границы
+export type ThemeMode = 'dark' | 'light';
 
-  // Акценттер / Accents
-  gold:     '#C8922A',   // золото — основной акцент
-  goldDim:  '#8A6018',   // приглушённое золото
-  teal:     '#2D7D6F',   // бирюза — второй акцент
-  tealDark: '#1A4A44',   // тёмная бирюза
-
-  // Мәтін / Text
-  textPrimary:   '#F5E6C8',  // тёплый белый / кремовый
-  textSecondary: '#9A7A5A',  // тёплый серый
-  textDim:       '#5A3A2A',  // приглушённый
-
-  // Жыныс / Sex colors
-  male:     '#4A8FC4',   // синий — айғыр
-  maleDark: '#1A3A5A',
-  female:   '#C44A8F',   // розовый — бие
-  femaleDark: '#4A1A3A',
-
-  // Оверлей / Overlay
-  overlay:  'rgba(28,10,10,0.88)',
+export const DARK = {
+  bg: '#1C0A0A',
+  surface: '#2A1210',
+  surfaceAlt: '#3A1A12',
+  border: '#5A2820',
+  gold: '#C8922A',
+  text: '#FFFFFF',
+  textSub: '#F5E6C8',
+  muted: '#9A7A5A',
+  faint: '#5A3A2A',
+  male: '#5ABBD4',
+  maleBg: '#0D1E2D',
+  maleBorder: '#2D7D9F',
+  female: '#D45A9E',
+  femaleBg: '#2D0D1A',
+  femaleBorder: '#9F2D65',
+  danger: '#C84A4A',
+  success: '#4AAC7A',
+  overlay: 'rgba(0,0,0,0.7)',
+  statusBar: 'light' as const,
 };
+
+export const LIGHT = {
+  bg: '#F5EFE6',
+  surface: '#FFFFFF',
+  surfaceAlt: '#EDE5D8',
+  border: '#DDD0B8',
+  gold: '#9A6E14',
+  text: '#1A0808',
+  textSub: '#2A1210',
+  muted: '#7A5A40',
+  faint: '#A08060',
+  male: '#1A6A8A',
+  maleBg: '#D8EFF8',
+  maleBorder: '#1A6A8A',
+  female: '#8A1A5A',
+  femaleBg: '#F8D8EE',
+  femaleBorder: '#8A1A5A',
+  danger: '#C84A4A',
+  success: '#2A9060',
+  overlay: 'rgba(0,0,0,0.5)',
+  statusBar: 'dark' as const,
+};
+
+export type Colors = Omit<typeof DARK, 'statusBar'> & { statusBar: 'light' | 'dark' };

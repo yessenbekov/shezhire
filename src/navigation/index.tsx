@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
 import { supabase } from '../lib/supabase';
+import { useTheme } from '../context/ThemeContext';
 import IconHorse from '../components/icons/IconHorse';
 import IconSearch from '../components/icons/IconSearch';
 import type { Session } from '@supabase/supabase-js';
@@ -17,22 +18,17 @@ import AddHorseScreen from '../screens/horses/AddHorseScreen';
 import EditHorseScreen from '../screens/horses/EditHorseScreen';
 import ShireTreeScreen from '../screens/horses/ShireTreeScreen';
 import SearchScreen from '../screens/search/SearchScreen';
+import ReportsScreen from '../screens/reports/ReportsScreen';
+import ProfileScreen from '../screens/profile/ProfileScreen';
 
-export type RootStackParamList = {
-  Auth: undefined;
-  Main: undefined;
-};
-
-export type AuthStackParamList = {
-  Login: undefined;
-  Register: undefined;
-};
-
+export type RootStackParamList = { Auth: undefined; Main: undefined };
+export type AuthStackParamList = { Login: undefined; Register: undefined };
 export type MainTabParamList = {
   HerdsTab: undefined;
   SearchTab: undefined;
+  ReportsTab: undefined;
+  ProfileTab: undefined;
 };
-
 export type HerdsStackParamList = {
   Herds: undefined;
   HerdDetail: { herdId: string; herdName: string };
@@ -57,14 +53,15 @@ function AuthNavigator() {
 }
 
 function HerdsNavigator() {
+  const { C } = useTheme();
   return (
     <HerdsStack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: '#2A1210' },
-        headerTintColor: '#C8922A',
-        headerTitleStyle: { fontWeight: 'bold', color: '#F5E6C8' },
+        headerStyle: { backgroundColor: C.surface },
+        headerTintColor: C.gold,
+        headerTitleStyle: { fontWeight: 'bold', color: C.textSub },
         headerShadowVisible: false,
-        contentStyle: { backgroundColor: '#1C0A0A' },
+        contentStyle: { backgroundColor: C.bg },
       }}
     >
       <HerdsStack.Screen name="Herds" component={HerdsScreen} options={{ title: 'Менің табундарым' }} />
@@ -78,19 +75,13 @@ function HerdsNavigator() {
 }
 
 function MainNavigator() {
+  const { C } = useTheme();
   return (
     <MainTab.Navigator
       screenOptions={{
-        tabBarStyle: {
-          backgroundColor: '#2A1210',
-          borderTopColor: '#5A2820',
-          borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 6,
-        },
-        tabBarActiveTintColor: '#C8922A',
-        tabBarInactiveTintColor: '#5A3A2A',
+        tabBarStyle: { backgroundColor: C.surface, borderTopColor: C.border, borderTopWidth: 1, height: 60, paddingBottom: 8, paddingTop: 6 },
+        tabBarActiveTintColor: C.gold,
+        tabBarInactiveTintColor: C.faint,
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600', letterSpacing: 0.3 },
         headerShown: false,
       }}
@@ -98,10 +89,7 @@ function MainNavigator() {
       <MainTab.Screen
         name="HerdsTab"
         component={HerdsNavigator}
-        options={{
-          tabBarLabel: 'Табундар',
-          tabBarIcon: ({ color }) => <IconHorse size={26} color={color} />,
-        }}
+        options={{ tabBarLabel: 'Табундар', tabBarIcon: ({ color }) => <IconHorse size={26} color={color} /> }}
       />
       <MainTab.Screen
         name="SearchTab"
@@ -111,8 +99,34 @@ function MainNavigator() {
           tabBarIcon: ({ color }) => <IconSearch size={22} color={color} />,
           headerShown: true,
           headerTitle: 'Іздеу',
-          headerStyle: { backgroundColor: '#2A1210' },
-          headerTitleStyle: { color: '#F5E6C8', fontWeight: 'bold' },
+          headerStyle: { backgroundColor: C.surface },
+          headerTitleStyle: { color: C.textSub, fontWeight: 'bold' },
+          headerShadowVisible: false,
+        }}
+      />
+      <MainTab.Screen
+        name="ReportsTab"
+        component={ReportsScreen}
+        options={{
+          tabBarLabel: 'Есеп',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 18, color }}>📊</Text>,
+          headerShown: true,
+          headerTitle: 'Есеп беру',
+          headerStyle: { backgroundColor: C.surface },
+          headerTitleStyle: { color: C.textSub, fontWeight: 'bold' },
+          headerShadowVisible: false,
+        }}
+      />
+      <MainTab.Screen
+        name="ProfileTab"
+        component={ProfileScreen}
+        options={{
+          tabBarLabel: 'Кабинет',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 18, color }}>👤</Text>,
+          headerShown: true,
+          headerTitle: 'Жеке кабинет',
+          headerStyle: { backgroundColor: C.surface },
+          headerTitleStyle: { color: C.textSub, fontWeight: 'bold' },
           headerShadowVisible: false,
         }}
       />
@@ -125,13 +139,8 @@ export default function AppNavigator() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); setLoading(false); });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
     return () => subscription.unsubscribe();
   }, []);
 
@@ -140,11 +149,9 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        {session ? (
-          <RootStack.Screen name="Main" component={MainNavigator} />
-        ) : (
-          <RootStack.Screen name="Auth" component={AuthNavigator} />
-        )}
+        {session
+          ? <RootStack.Screen name="Main" component={MainNavigator} />
+          : <RootStack.Screen name="Auth" component={AuthNavigator} />}
       </RootStack.Navigator>
     </NavigationContainer>
   );

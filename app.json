@@ -1,17 +1,21 @@
 {
   "expo": {
-    "name": "shezhire",
+    "name": "Шежіре",
     "slug": "shezhire",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tyessenbekov.shezhire",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "com.tyessenbekov.shezhire",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -20,6 +24,28 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/7a93ed2b-c2f7-4b6f-a883-aa5f80216fc1"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Лошадь суретін қосу үшін рұқсат беріңіз."
+        }
+      ],
+      "expo-web-browser"
+    ],
+    "scheme": "shezhire",
+    "extra": {
+      "eas": {
+        "projectId": "7a93ed2b-c2f7-4b6f-a883-aa5f80216fc1"
+      }
+    },
+    "owner": "tyessenbekovs-team"
   }
 }

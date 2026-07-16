@@ -25,6 +25,7 @@ export interface Horse {
   photo_url: string | null;
   notes: string | null;
   is_public: boolean;
+  died_at: string | null;
   created_at: string;
   // joined
   sire?: Horse | null;
