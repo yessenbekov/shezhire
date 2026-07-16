@@ -3,6 +3,7 @@ import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Activity
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../context/ThemeContext';
+import { useT } from '../../i18n';
 import { getAgeName } from '../../utils/horseAge';
 import type { Colors } from '../../theme';
 import type { Horse } from '../../types';
@@ -12,6 +13,7 @@ import type { HerdsStackParamList } from '../../navigation';
 export default function SearchScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<HerdsStackParamList>>();
   const { C, ageNames } = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(C), [C]);
 
   const [query, setQuery] = useState('');
@@ -40,7 +42,7 @@ export default function SearchScreen() {
         <Text style={styles.searchIcon}>🔍</Text>
         <TextInput
           style={styles.input}
-          placeholder="Клеймо, кличка немесе тұқым..."
+          placeholder={t.search_placeholder}
           placeholderTextColor={C.faint}
           value={query}
           onChangeText={q => { setQuery(q); search(q); }}
@@ -58,14 +60,14 @@ export default function SearchScreen() {
       {!loading && !searched && (
         <View style={styles.hintWrap}>
           <Text style={styles.hintIcon}>🔍</Text>
-          <Text style={styles.hintText}>Клеймо нөмірі, кличка немесе тұқым бойынша іздеу жасаңыз</Text>
+          <Text style={styles.hintText}>{t.search_hint}</Text>
         </View>
       )}
 
       {!loading && searched && results.length === 0 && (
         <View style={styles.hintWrap}>
           <Text style={styles.hintIcon}>🐴</Text>
-          <Text style={styles.hintText}>«{query}» бойынша табылмады</Text>
+          <Text style={styles.hintText}>«{query}» {t.search_notFound}</Text>
         </View>
       )}
 
@@ -89,7 +91,7 @@ export default function SearchScreen() {
               </View>
               <View style={styles.cardInfo}>
                 {item.name ? <Text style={styles.horseName}>{item.name}</Text> : null}
-                <Text style={styles.ageName}>{ageName} · {item.birth_year} ж.</Text>
+                <Text style={styles.ageName}>{ageName} · {item.birth_year}</Text>
                 {item.breed ? <Text style={styles.breed}>{item.breed}</Text> : null}
               </View>
               <Text style={styles.arrow}>›</Text>

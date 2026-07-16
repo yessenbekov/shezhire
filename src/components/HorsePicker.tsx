@@ -7,6 +7,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../lib/supabase';
 import { useTheme } from '../context/ThemeContext';
+import { useT } from '../i18n';
 import type { Colors } from '../theme';
 import type { Horse, Sex } from '../types';
 
@@ -23,6 +24,7 @@ interface Props {
 export default function HorsePicker({ visible, sexFilter, excludeId, onSelect, onClear, onClose, title }: Props) {
   const insets = useSafeAreaInsets();
   const { C } = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(C), [C]);
 
   const [horses, setHorses] = useState<Horse[]>([]);
@@ -68,7 +70,7 @@ export default function HorsePicker({ visible, sexFilter, excludeId, onSelect, o
           <View style={styles.searchRow}>
             <TextInput
               style={styles.searchInput}
-              placeholder="Клеймо немесе кличка..."
+              placeholder={t.picker_search}
               placeholderTextColor={C.faint}
               value={query}
               onChangeText={setQuery}
@@ -77,7 +79,7 @@ export default function HorsePicker({ visible, sexFilter, excludeId, onSelect, o
           </View>
 
           <TouchableOpacity style={styles.clearRow} onPress={() => { onClear(); onClose(); }}>
-            <Text style={styles.clearText}>— Белгісіз (тазарту)</Text>
+            <Text style={styles.clearText}>{t.picker_clear}</Text>
           </TouchableOpacity>
 
           {loading ? (
@@ -87,7 +89,7 @@ export default function HorsePicker({ visible, sexFilter, excludeId, onSelect, o
               data={filtered}
               keyExtractor={h => h.id}
               keyboardShouldPersistTaps="handled"
-              ListEmptyComponent={<Text style={styles.empty}>Лошадь табылмады</Text>}
+              ListEmptyComponent={<Text style={styles.empty}>{t.picker_empty}</Text>}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.item}
@@ -96,7 +98,7 @@ export default function HorsePicker({ visible, sexFilter, excludeId, onSelect, o
                   <Text style={styles.itemBrand}>{item.brand}</Text>
                   <View style={styles.itemRight}>
                     {item.name ? <Text style={styles.itemName}>{item.name}</Text> : null}
-                    <Text style={styles.itemYear}>{item.birth_year} ж.</Text>
+                    <Text style={styles.itemYear}>{item.birth_year}</Text>
                   </View>
                   <Text style={[styles.itemSex, { color: item.sex === 'м' ? C.male : C.female }]}>{item.sex === 'м' ? '♂' : '♀'}</Text>
                 </TouchableOpacity>

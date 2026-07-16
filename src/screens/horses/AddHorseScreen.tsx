@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView,
 import { supabase } from '../../lib/supabase';
 import { parseBrand } from '../../types';
 import { useTheme } from '../../context/ThemeContext';
+import { useT } from '../../i18n';
 import HorsePicker from '../../components/HorsePicker';
 import type { Colors } from '../../theme';
 import type { Horse } from '../../types';
@@ -18,6 +19,7 @@ type Props = {
 export default function AddHorseScreen({ navigation, route }: Props) {
   const { herdId } = route.params;
   const { C } = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(C), [C]);
 
   const [brand, setBrand] = useState('');
@@ -37,12 +39,12 @@ export default function AddHorseScreen({ navigation, route }: Props) {
 
   async function save() {
     if (!brand.trim()) {
-      Alert.alert('Қате', 'Клеймо нөмірін енгізіңіз');
+      Alert.alert(t.error, t.horse_brandError);
       return;
     }
     const parsed = parseBrand(brand.trim());
     if (!parsed) {
-      Alert.alert('Қате', 'Клеймо форматы: ЖЖ/НН (мысалы: 26/35)');
+      Alert.alert(t.error, t.horse_brandFormatError);
       return;
     }
 
@@ -65,7 +67,7 @@ export default function AddHorseScreen({ navigation, route }: Props) {
       is_public: isPublic,
     });
 
-    if (error) Alert.alert('Қате', error.message);
+    if (error) Alert.alert(t.error, error.message);
     else navigation.goBack();
     setSaving(false);
   }
@@ -75,10 +77,10 @@ export default function AddHorseScreen({ navigation, route }: Props) {
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
 
-          <Text style={styles.section}>Клеймо</Text>
+          <Text style={styles.section}>{t.horse_brandLabel}</Text>
           <TextInput
             style={styles.input}
-            placeholder="ЖЖ/НН (мысалы: 26/35)"
+            placeholder={t.horse_brandPlaceholder}
             placeholderTextColor={C.faint}
             value={brand}
             onChangeText={setBrand}
@@ -86,28 +88,28 @@ export default function AddHorseScreen({ navigation, route }: Props) {
           />
           {parsedInfo && (
             <View style={[styles.parsedBox, { backgroundColor: C.maleBg, borderColor: C.maleBorder }]}>
-              <Text style={[styles.parsedText, { color: C.male }]}>📅 {parsedInfo.birthYear} жылы туылған</Text>
-              <Text style={[styles.parsedText, { color: parsedInfo.sex === 'м' ? C.male : C.female }]}>{parsedInfo.sex === 'м' ? '♂ Айғыр (тақ сан)' : '♀ Бие (жұп сан)'}</Text>
-              <Text style={[styles.parsedText, { color: C.male }]}>№ {parsedInfo.sequenceNo}</Text>
+              <Text style={[styles.parsedText, { color: C.male }]}>📅 {parsedInfo.birthYear} {t.horse_bornYear}</Text>
+              <Text style={[styles.parsedText, { color: parsedInfo.sex === 'м' ? C.male : C.female }]}>{parsedInfo.sex === 'м' ? t.horse_oddEven_m : t.horse_oddEven_f}</Text>
+              <Text style={[styles.parsedText, { color: C.male }]}>{t.horse_seqNo} {parsedInfo.sequenceNo}</Text>
             </View>
           )}
           {brand && !parsedInfo && (
-            <Text style={styles.error}>Формат дұрыс емес. ЖЖ/НН форматын пайдаланыңыз</Text>
+            <Text style={styles.error}>{t.horse_formatHint}</Text>
           )}
 
-          <Text style={styles.section}>Қосымша мәліметтер</Text>
-          <TextInput style={styles.input} placeholder="Кличкасы (міндетті емес)" placeholderTextColor={C.faint} value={name} onChangeText={setName} />
-          <TextInput style={styles.input} placeholder="Тұқымы (мысалы: Жабы, Ахалтеке)" placeholderTextColor={C.faint} value={breed} onChangeText={setBreed} />
-          <TextInput style={styles.input} placeholder="Түсі (мысалы: Торы, Қара)" placeholderTextColor={C.faint} value={color} onChangeText={setColor} />
+          <Text style={styles.section}>{t.horse_additional}</Text>
+          <TextInput style={styles.input} placeholder={t.horse_namePlaceholder} placeholderTextColor={C.faint} value={name} onChangeText={setName} />
+          <TextInput style={styles.input} placeholder={t.horse_breedPlaceholder} placeholderTextColor={C.faint} value={breed} onChangeText={setBreed} />
+          <TextInput style={styles.input} placeholder={t.horse_colorPlaceholder} placeholderTextColor={C.faint} value={color} onChangeText={setColor} />
 
-          <Text style={styles.section}>Шежіре байланыстары</Text>
+          <Text style={styles.section}>{t.horse_pedigreeLinks}</Text>
 
           <TouchableOpacity style={styles.pickerBtn} onPress={() => setShowSirePicker(true)}>
             <View>
-              <Text style={styles.pickerLabel}>♂ Әкесі</Text>
+              <Text style={styles.pickerLabel}>{t.horse_father}</Text>
               {sire
                 ? <Text style={styles.pickerValue}>{sire.brand}{sire.name ? ` · ${sire.name}` : ''}</Text>
-                : <Text style={styles.pickerPlaceholder}>Таңдаңыз...</Text>
+                : <Text style={styles.pickerPlaceholder}>{t.select}</Text>
               }
             </View>
             <Text style={styles.pickerArrow}>›</Text>
@@ -115,10 +117,10 @@ export default function AddHorseScreen({ navigation, route }: Props) {
 
           <TouchableOpacity style={styles.pickerBtn} onPress={() => setShowDamPicker(true)}>
             <View>
-              <Text style={styles.pickerLabel}>♀ Шешесі</Text>
+              <Text style={styles.pickerLabel}>{t.horse_mother}</Text>
               {dam
                 ? <Text style={styles.pickerValue}>{dam.brand}{dam.name ? ` · ${dam.name}` : ''}</Text>
-                : <Text style={styles.pickerPlaceholder}>Таңдаңыз...</Text>
+                : <Text style={styles.pickerPlaceholder}>{t.select}</Text>
               }
             </View>
             <Text style={styles.pickerArrow}>›</Text>
@@ -126,7 +128,7 @@ export default function AddHorseScreen({ navigation, route }: Props) {
 
           <TextInput
             style={[styles.input, { height: 80, marginTop: 4 }]}
-            placeholder="Жазбалар..."
+            placeholder={t.horse_notesPlaceholder}
             placeholderTextColor={C.faint}
             value={notes}
             onChangeText={setNotes}
@@ -134,12 +136,12 @@ export default function AddHorseScreen({ navigation, route }: Props) {
           />
 
           <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>Жалпыға қолжетімді</Text>
+            <Text style={styles.switchLabel}>{t.horse_public}</Text>
             <Switch value={isPublic} onValueChange={setIsPublic} trackColor={{ true: C.gold }} />
           </View>
 
           <TouchableOpacity style={styles.button} onPress={save} disabled={saving}>
-            <Text style={styles.buttonText}>{saving ? 'Сақталуда...' : 'Сақтау'}</Text>
+            <Text style={styles.buttonText}>{saving ? t.saving : t.save}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -150,7 +152,7 @@ export default function AddHorseScreen({ navigation, route }: Props) {
         onSelect={h => setSire(h)}
         onClear={() => setSire(null)}
         onClose={() => setShowSirePicker(false)}
-        title="Әкесін таңдаңыз (♂ Айғыр)"
+        title={t.horse_pickerFather}
       />
       <HorsePicker
         visible={showDamPicker}
@@ -158,7 +160,7 @@ export default function AddHorseScreen({ navigation, route }: Props) {
         onSelect={h => setDam(h)}
         onClear={() => setDam(null)}
         onClose={() => setShowDamPicker(false)}
-        title="Шешесін таңдаңыз (♀ Бие)"
+        title={t.horse_pickerMother}
       />
     </>
   );

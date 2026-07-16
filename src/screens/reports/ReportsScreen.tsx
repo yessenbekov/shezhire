@@ -5,6 +5,7 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../context/ThemeContext';
+import { useT } from '../../i18n';
 
 interface Stats {
   total: number;
@@ -18,6 +19,7 @@ interface Stats {
 
 export default function ReportsScreen() {
   const { C } = useTheme();
+  const t = useT();
   const s = makeStyles(C);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,13 +34,13 @@ export default function ReportsScreen() {
 
     const { data } = await supabase
       .from('shezhire_horses')
-      .select('sex, birth_year, died_at')
+      .select('sex, birth_year, died_at, disposition, disposed_at')
       .eq('owner_id', user.id);
 
     if (!data) { setLoading(false); return; }
 
     const total = data.length;
-    const dead = data.filter(h => h.died_at).length;
+    const dead = data.filter(h => (h.disposition && h.disposition !== 'alive') || !!h.died_at).length;
     const alive = total - dead;
     const male = data.filter(h => h.sex === 'м').length;
     const female = data.filter(h => h.sex === 'ж').length;
@@ -87,8 +89,8 @@ export default function ReportsScreen() {
     return (
       <View style={[s.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <Text style={{ fontSize: 48, marginBottom: 16 }}>📊</Text>
-        <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>Мәліметтер жоқ</Text>
-        <Text style={{ color: C.muted, fontSize: 13, marginTop: 8 }}>Лошадь қосқаннан кейін статистика пайда болады</Text>
+        <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{t.report_noData}</Text>
+        <Text style={{ color: C.muted, fontSize: 13, marginTop: 8 }}>{t.report_noDataHint}</Text>
       </View>
     );
   }
@@ -103,23 +105,22 @@ export default function ReportsScreen() {
       {/* PDF Share button */}
       <TouchableOpacity style={s.pdfBtn} onPress={shareAsPDF} disabled={pdfLoading}>
         <Text style={s.pdfBtnIcon}>📄</Text>
-        <Text style={s.pdfBtnText}>{pdfLoading ? 'PDF жасалуда...' : 'PDF есеп жасау және бөлісу'}</Text>
+        <Text style={s.pdfBtnText}>{pdfLoading ? t.report_pdfLoading : t.report_pdf}</Text>
       </TouchableOpacity>
 
       {/* Общая сводка */}
-      <Text style={s.section}>Жалпы</Text>
+      <Text style={s.section}>{t.report_general}</Text>
       <View style={s.summaryGrid}>
-        <StatTile label="Барлығы" value={stats.total} color={C.gold} C={C} />
-        <StatTile label="Тірі" value={stats.alive} color={C.success} C={C} />
-        <StatTile label="Қайтыс" value={stats.dead} color={C.danger} C={C} />
+        <StatTile label={t.report_total} value={stats.total} color={C.gold} C={C} />
+        <StatTile label={t.report_alive} value={stats.alive} color={C.success} C={C} />
+        <StatTile label={t.report_dead} value={stats.dead} color={C.danger} C={C} />
       </View>
       <View style={s.summaryGrid}>
-        <StatTile label="♂ Айғыр" value={stats.male} color={C.male} C={C} />
-        <StatTile label="♀ Бие" value={stats.female} color={C.female} C={C} />
+        <StatTile label={t.report_stallions} value={stats.male} color={C.male} C={C} />
+        <StatTile label={t.report_mares} value={stats.female} color={C.female} C={C} />
       </View>
 
-      {/* Туылғандар по годам */}
-      <Text style={s.section}>Туылғандар жыл бойынша</Text>
+      <Text style={s.section}>{t.report_births}</Text>
       <View style={s.card}>
         {birthYears.map(year => {
           const d = stats.byBirthYear[year];
@@ -140,7 +141,7 @@ export default function ReportsScreen() {
       {/* Қайтыс болғандар */}
       {deathYears.length > 0 && (
         <>
-          <Text style={s.section}>Қайтыс болғандар жыл бойынша</Text>
+          <Text style={s.section}>{t.report_deaths}</Text>
           <View style={s.card}>
             {deathYears.map(year => (
               <View key={year} style={s.yearRow}>

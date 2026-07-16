@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../context/ThemeContext';
+import { useT } from '../../i18n';
 import { getAgeName } from '../../utils/horseAge';
 import type { Colors } from '../../theme';
 import type { Horse } from '../../types';
@@ -19,6 +20,7 @@ type Props = {
 export default function HerdDetailScreen({ navigation, route }: Props) {
   const { herdId } = route.params;
   const { C, ageNames } = useTheme();
+  const t = useT();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(C, insets.bottom), [C, insets.bottom]);
 
@@ -46,17 +48,17 @@ export default function HerdDetailScreen({ navigation, route }: Props) {
       <View style={styles.statsBar}>
         <View style={styles.statItem}>
           <Text style={styles.statNum}>{horses.length}</Text>
-          <Text style={styles.statLabel}>Барлығы</Text>
+          <Text style={styles.statLabel}>{t.herd_all}</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={[styles.statNum, { color: C.male }]}>{stallions.length}</Text>
-          <Text style={styles.statLabel}>♂ Айғыр</Text>
+          <Text style={styles.statLabel}>{t.herd_stallions}</Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={[styles.statNum, { color: C.female }]}>{mares.length}</Text>
-          <Text style={styles.statLabel}>♀ Бие</Text>
+          <Text style={styles.statLabel}>{t.herd_mares}</Text>
         </View>
       </View>
 
@@ -70,14 +72,14 @@ export default function HerdDetailScreen({ navigation, route }: Props) {
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
               <Text style={styles.emptyIcon}>🐎</Text>
-              <Text style={styles.emptyTitle}>Бұл табунда лошадь жоқ</Text>
-              <Text style={styles.emptySub}>«+» басып жаңа лошадь қосыңыз</Text>
+              <Text style={styles.emptyTitle}>{t.herd_empty}</Text>
+              <Text style={styles.emptySub}>{t.herd_emptyHint}</Text>
             </View>
           }
           renderItem={({ item }) => {
             const isMale = item.sex === 'м';
             const ageName = getAgeName(item.birth_year, item.sex, ageNames);
-            const isDead = !!item.died_at;
+            const isDead = (item.disposition && item.disposition !== 'alive') || !!item.died_at;
             return (
               <TouchableOpacity
                 style={[styles.card, isDead && { opacity: 0.55 }]}
@@ -91,9 +93,9 @@ export default function HerdDetailScreen({ navigation, route }: Props) {
                 </View>
                 <View style={styles.cardInfo}>
                   {item.name ? <Text style={styles.horseName}>{item.name}</Text> : null}
-                  <Text style={styles.ageName}>{ageName} · {item.birth_year} ж.</Text>
+                  <Text style={styles.ageName}>{ageName} · {item.birth_year}</Text>
                   {item.breed ? <Text style={styles.breed}>{item.breed}</Text> : null}
-                  {isDead ? <Text style={styles.deadTag}>🕊 қайтыс</Text> : null}
+                  {isDead ? <Text style={styles.deadTag}>🕊 {t.disp_dead.toLowerCase()}</Text> : null}
                 </View>
                 <Text style={styles.arrow}>›</Text>
               </TouchableOpacity>

@@ -6,6 +6,7 @@ import { Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../lib/supabase';
 import { useTheme } from '../context/ThemeContext';
+import { useT } from '../i18n';
 import IconHorse from '../components/icons/IconHorse';
 import IconSearch from '../components/icons/IconSearch';
 import type { Session } from '@supabase/supabase-js';
@@ -55,6 +56,7 @@ function AuthNavigator() {
 
 function HerdsNavigator() {
   const { C } = useTheme();
+  const t = useT();
   return (
     <HerdsStack.Navigator
       screenOptions={{
@@ -65,18 +67,19 @@ function HerdsNavigator() {
         contentStyle: { backgroundColor: C.bg },
       }}
     >
-      <HerdsStack.Screen name="Herds" component={HerdsScreen} options={{ title: 'Менің табундарым' }} />
+      <HerdsStack.Screen name="Herds" component={HerdsScreen} options={{ title: t.nav_myHerds }} />
       <HerdsStack.Screen name="HerdDetail" component={HerdDetailScreen} options={({ route }) => ({ title: route.params.herdName })} />
-      <HerdsStack.Screen name="HorseDetail" component={HorseDetailScreen} options={{ title: 'Лошадь' }} />
-      <HerdsStack.Screen name="AddHorse" component={AddHorseScreen} options={{ title: 'Жеребёнок қосу' }} />
-      <HerdsStack.Screen name="EditHorse" component={EditHorseScreen} options={{ title: 'Өзгерту' }} />
-      <HerdsStack.Screen name="ShireTree" component={ShireTreeScreen} options={({ route }) => ({ title: `Шежіре: ${route.params.horseBrand}` })} />
+      <HerdsStack.Screen name="HorseDetail" component={HorseDetailScreen} options={{ title: '' }} />
+      <HerdsStack.Screen name="AddHorse" component={AddHorseScreen} options={{ title: t.nav_addHorse }} />
+      <HerdsStack.Screen name="EditHorse" component={EditHorseScreen} options={{ title: t.nav_editHorse }} />
+      <HerdsStack.Screen name="ShireTree" component={ShireTreeScreen} options={({ route }) => ({ title: `🌳 ${route.params.horseBrand}` })} />
     </HerdsStack.Navigator>
   );
 }
 
 function MainNavigator() {
   const { C } = useTheme();
+  const t = useT();
   const insets = useSafeAreaInsets();
   const tabBarHeight = 54 + insets.bottom;
   return (
@@ -92,16 +95,16 @@ function MainNavigator() {
       <MainTab.Screen
         name="HerdsTab"
         component={HerdsNavigator}
-        options={{ tabBarLabel: 'Табундар', tabBarIcon: ({ color }) => <IconHorse size={26} color={color} /> }}
+        options={{ tabBarLabel: t.nav_herds, tabBarIcon: ({ color }) => <IconHorse size={26} color={color} /> }}
       />
       <MainTab.Screen
         name="SearchTab"
         component={SearchScreen}
         options={{
-          tabBarLabel: 'Іздеу',
+          tabBarLabel: t.nav_search,
           tabBarIcon: ({ color }) => <IconSearch size={22} color={color} />,
           headerShown: true,
-          headerTitle: 'Іздеу',
+          headerTitle: t.nav_search,
           headerStyle: { backgroundColor: C.surface },
           headerTitleStyle: { color: C.textSub, fontWeight: 'bold' },
           headerShadowVisible: false,
@@ -111,10 +114,10 @@ function MainNavigator() {
         name="ReportsTab"
         component={ReportsScreen}
         options={{
-          tabBarLabel: 'Есеп',
+          tabBarLabel: t.nav_reports,
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 18, color }}>📊</Text>,
           headerShown: true,
-          headerTitle: 'Есеп беру',
+          headerTitle: t.nav_reports_title,
           headerStyle: { backgroundColor: C.surface },
           headerTitleStyle: { color: C.textSub, fontWeight: 'bold' },
           headerShadowVisible: false,
@@ -124,10 +127,10 @@ function MainNavigator() {
         name="ProfileTab"
         component={ProfileScreen}
         options={{
-          tabBarLabel: 'Кабинет',
+          tabBarLabel: t.nav_profile,
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 18, color }}>👤</Text>,
           headerShown: true,
-          headerTitle: 'Жеке кабинет',
+          headerTitle: t.nav_profile_title,
           headerStyle: { backgroundColor: C.surface },
           headerTitleStyle: { color: C.textSub, fontWeight: 'bold' },
           headerShadowVisible: false,

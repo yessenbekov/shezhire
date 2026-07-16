@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../context/ThemeContext';
+import { useT } from '../../i18n';
 import HorsePicker from '../../components/HorsePicker';
 import type { Colors } from '../../theme';
 import type { Horse } from '../../types';
@@ -20,13 +21,14 @@ type Props = {
 export default function EditHorseScreen({ navigation, route }: Props) {
   const { horseId } = route.params;
   const { C } = useTheme();
+  const t = useT();
   const styles = useMemo(() => makeStyles(C), [C]);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [brand, setBrand] = useState('');
   const [birthYear, setBirthYear] = useState(0);
-  const [sex, setSex] = useState('');
+  const [sex, setSex] = useState<'м' | 'ж'>('м');
   const [name, setName] = useState('');
   const [breed, setBreed] = useState('');
   const [color, setColor] = useState('');
@@ -42,16 +44,14 @@ export default function EditHorseScreen({ navigation, route }: Props) {
   async function loadHorse() {
     setLoading(true);
     const { data, error } = await supabase.from('shezhire_horses').select('*').eq('id', horseId).single();
-
     if (error || !data) {
-      Alert.alert('Қате', 'Лошадь табылмады');
+      Alert.alert(t.error, t.horse_notFound);
       navigation.goBack();
       return;
     }
-
     setBrand(data.brand);
     setBirthYear(data.birth_year);
-    setSex(data.sex);
+    setSex(data.sex as 'м' | 'ж');
     setName(data.name ?? '');
     setBreed(data.breed ?? '');
     setColor(data.color ?? '');
@@ -62,7 +62,6 @@ export default function EditHorseScreen({ navigation, route }: Props) {
       data.sire_id ? supabase.from('shezhire_horses').select('*').eq('id', data.sire_id).single() : Promise.resolve({ data: null }),
       data.dam_id ? supabase.from('shezhire_horses').select('*').eq('id', data.dam_id).single() : Promise.resolve({ data: null }),
     ]);
-
     setSire(sireData as Horse | null);
     setDam(damData as Horse | null);
     setLoading(false);
@@ -71,6 +70,7 @@ export default function EditHorseScreen({ navigation, route }: Props) {
   async function save() {
     setSaving(true);
     const { error } = await supabase.from('shezhire_horses').update({
+      sex,
       name: name.trim() || null,
       breed: breed.trim() || null,
       color: color.trim() || null,
@@ -79,90 +79,80 @@ export default function EditHorseScreen({ navigation, route }: Props) {
       notes: notes.trim() || null,
       is_public: isPublic,
     }).eq('id', horseId);
-
-    if (error) Alert.alert('Қате', error.message);
+    if (error) Alert.alert(t.error, error.message);
     else navigation.goBack();
     setSaving(false);
   }
 
-  if (loading) {
-    return <ActivityIndicator size="large" color={C.gold} style={{ flex: 1, backgroundColor: C.bg }} />;
-  }
+  if (loading) return <ActivityIndicator size="large" color={C.gold} style={{ flex: 1, backgroundColor: C.bg }} />;
 
   return (
     <>
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
 
-          <Text style={styles.section}>Клеймо (өзгермейді)</Text>
+          <Text style={styles.section}>{t.horse_brandFixed}</Text>
           <View style={styles.brandBox}>
             <Text style={styles.brandText}>{brand}</Text>
-            <Text style={styles.brandSub}>{sex === 'м' ? '♂ Айғыр' : '♀ Бие'} · {birthYear} ж.</Text>
+            <Text style={styles.brandSub}>{birthYear} {t.horse_bornYear}</Text>
           </View>
 
-          <Text style={styles.section}>Қосымша мәліметтер</Text>
-          <TextInput style={styles.input} placeholder="Кличкасы" placeholderTextColor={C.faint} value={name} onChangeText={setName} returnKeyType="next" />
-          <TextInput style={styles.input} placeholder="Тұқымы (мысалы: Жабы, Ахалтеке)" placeholderTextColor={C.faint} value={breed} onChangeText={setBreed} returnKeyType="next" />
-          <TextInput style={styles.input} placeholder="Түсі (мысалы: Торы, Қара)" placeholderTextColor={C.faint} value={color} onChangeText={setColor} returnKeyType="next" />
+          <Text style={styles.section}>{t.horse_sexLabel}</Text>
+          <View style={styles.sexRow}>
+            <TouchableOpacity
+              style={[styles.sexBtn, { borderColor: sex === 'м' ? C.maleBorder : C.border, backgroundColor: sex === 'м' ? C.maleBg : C.surface }]}
+              onPress={() => setSex('м')}
+            >
+              <Text style={[styles.sexBtnText, { color: sex === 'м' ? C.male : C.muted }]}>{t.sex_male}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.sexBtn, { borderColor: sex === 'ж' ? C.femaleBorder : C.border, backgroundColor: sex === 'ж' ? C.femaleBg : C.surface }]}
+              onPress={() => setSex('ж')}
+            >
+              <Text style={[styles.sexBtnText, { color: sex === 'ж' ? C.female : C.muted }]}>{t.sex_female}</Text>
+            </TouchableOpacity>
+          </View>
 
-          <Text style={styles.section}>Шежіре байланыстары</Text>
+          <Text style={styles.section}>{t.horse_additional}</Text>
+          <TextInput style={styles.input} placeholder={t.horse_namePlaceholder} placeholderTextColor={C.faint} value={name} onChangeText={setName} returnKeyType="next" />
+          <TextInput style={styles.input} placeholder={t.horse_breedPlaceholder} placeholderTextColor={C.faint} value={breed} onChangeText={setBreed} returnKeyType="next" />
+          <TextInput style={styles.input} placeholder={t.horse_colorPlaceholder} placeholderTextColor={C.faint} value={color} onChangeText={setColor} returnKeyType="next" />
+
+          <Text style={styles.section}>{t.horse_pedigreeLinks}</Text>
 
           <TouchableOpacity style={styles.pickerBtn} onPress={() => setShowSirePicker(true)}>
             <View>
-              <Text style={styles.pickerLabel}>♂ Әкесі</Text>
+              <Text style={styles.pickerLabel}>{t.horse_father}</Text>
               {sire ? <Text style={styles.pickerValue}>{sire.brand}{sire.name ? ` · ${sire.name}` : ''}</Text>
-                    : <Text style={styles.pickerPlaceholder}>Таңдаңыз...</Text>}
+                    : <Text style={styles.pickerPlaceholder}>{t.select}</Text>}
             </View>
             <Text style={styles.pickerArrow}>›</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.pickerBtn} onPress={() => setShowDamPicker(true)}>
             <View>
-              <Text style={styles.pickerLabel}>♀ Шешесі</Text>
+              <Text style={styles.pickerLabel}>{t.horse_mother}</Text>
               {dam ? <Text style={styles.pickerValue}>{dam.brand}{dam.name ? ` · ${dam.name}` : ''}</Text>
-                   : <Text style={styles.pickerPlaceholder}>Таңдаңыз...</Text>}
+                   : <Text style={styles.pickerPlaceholder}>{t.select}</Text>}
             </View>
             <Text style={styles.pickerArrow}>›</Text>
           </TouchableOpacity>
 
-          <TextInput
-            style={[styles.input, { height: 80, marginTop: 4 }]}
-            placeholder="Жазбалар..."
-            placeholderTextColor={C.faint}
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-          />
+          <TextInput style={[styles.input, { height: 80, marginTop: 4 }]} placeholder={t.horse_notesPlaceholder} placeholderTextColor={C.faint} value={notes} onChangeText={setNotes} multiline />
 
           <View style={styles.switchRow}>
-            <Text style={styles.switchLabel}>Жалпыға қолжетімді</Text>
+            <Text style={styles.switchLabel}>{t.horse_public}</Text>
             <Switch value={isPublic} onValueChange={setIsPublic} trackColor={{ true: C.gold }} />
           </View>
 
           <TouchableOpacity style={styles.button} onPress={save} disabled={saving}>
-            <Text style={styles.buttonText}>{saving ? 'Сақталуда...' : 'Сақтау'}</Text>
+            <Text style={styles.buttonText}>{saving ? t.saving : t.save}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
 
-      <HorsePicker
-        visible={showSirePicker}
-        sexFilter="м"
-        excludeId={horseId}
-        onSelect={h => setSire(h)}
-        onClear={() => setSire(null)}
-        onClose={() => setShowSirePicker(false)}
-        title="Әкесін таңдаңыз (♂ Айғыр)"
-      />
-      <HorsePicker
-        visible={showDamPicker}
-        sexFilter="ж"
-        excludeId={horseId}
-        onSelect={h => setDam(h)}
-        onClear={() => setDam(null)}
-        onClose={() => setShowDamPicker(false)}
-        title="Шешесін таңдаңыз (♀ Бие)"
-      />
+      <HorsePicker visible={showSirePicker} sexFilter="м" excludeId={horseId} onSelect={h => setSire(h)} onClear={() => setSire(null)} onClose={() => setShowSirePicker(false)} title={t.horse_pickerFather} />
+      <HorsePicker visible={showDamPicker} sexFilter="ж" excludeId={horseId} onSelect={h => setDam(h)} onClear={() => setDam(null)} onClose={() => setShowDamPicker(false)} title={t.horse_pickerMother} />
     </>
   );
 }
@@ -172,6 +162,9 @@ const makeStyles = (C: Colors) => StyleSheet.create({
   brandBox: { backgroundColor: C.surface, borderRadius: 10, padding: 16, borderWidth: 1, borderColor: C.border, marginBottom: 4 },
   brandText: { color: C.gold, fontSize: 28, fontWeight: 'bold', fontFamily: 'monospace' },
   brandSub: { color: C.muted, fontSize: 14, marginTop: 4 },
+  sexRow: { flexDirection: 'row', gap: 10, marginBottom: 4 },
+  sexBtn: { flex: 1, borderRadius: 12, padding: 14, alignItems: 'center', borderWidth: 2 },
+  sexBtnText: { fontSize: 15, fontWeight: '700' },
   input: { backgroundColor: C.surface, color: C.text, borderRadius: 10, padding: 14, marginBottom: 10, fontSize: 16, borderWidth: 1, borderColor: C.border },
   pickerBtn: { backgroundColor: C.surface, borderRadius: 10, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: C.border, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   pickerLabel: { color: C.muted, fontSize: 12, marginBottom: 3 },

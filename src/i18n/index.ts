@@ -1,0 +1,206 @@
+import { useTheme } from '../context/ThemeContext';
+
+export type Lang = 'kk' | 'ru';
+
+const KK = {
+  error: 'Қате', yes: 'Иә', no: 'Жоқ',
+  save: 'Сақтау', saving: 'Сақталуда...', cancel: 'Бас тарту',
+  add: 'Қосу', delete: 'Жою', close: 'Жабу', edit: 'Өзгерту',
+  select: 'Таңдаңыз...', unknown: 'Белгісіз',
+
+  nav_herds: 'Табундар', nav_search: 'Іздеу', nav_reports: 'Есеп', nav_profile: 'Кабинет',
+  nav_myHerds: 'Менің табундарым', nav_addHorse: 'Жылқы қосу', nav_editHorse: 'Өзгерту',
+  nav_reports_title: 'Есеп беру', nav_profile_title: 'Жеке кабинет',
+
+  sex_male: '♂ Айғыр', sex_female: '♀ Бие',
+
+  herds_empty: 'Табун жоқ',
+  herds_emptyHint: '«+» батырмасын басып бірінші табунды қосыңыз',
+  herds_new: 'Жаңа табун',
+  herds_name: 'Атауы (мысалы: Солтүстік табун)',
+  herds_location: 'Орналасуы (міндетті емес)',
+  herds_delete: 'Табунды жою',
+  herds_deleteConfirm: 'Барлық лошадьдар да жойылады. Растайсыз ба?',
+  herds_count: 'бас',
+
+  herd_all: 'Барлығы', herd_stallions: '♂ Айғыр', herd_mares: '♀ Бие',
+  herd_empty: 'Бұл табунда лошадь жоқ',
+  herd_emptyHint: '«+» басып жаңа лошадь қосыңыз',
+
+  horse_breed: 'Тұқымы', horse_color: 'Түсі',
+  horse_pedigree: 'Шежіре', horse_father: '♂ Әкесі', horse_mother: '♀ Шешесі',
+  horse_tree: '🌳 Шежіре ағашы', horse_offspring: 'Ұрпақтары',
+  horse_notes: 'Жазбалар', horse_born: 'жылы туылған', horse_age: 'жас',
+  horse_notFound: 'Табылмады', horse_deleteConfirm: 'лошадін жою керек пе?',
+  horse_brandLabel: 'Клеймо', horse_brandPlaceholder: 'ЖЖ/НН (мысалы: 26/35)',
+  horse_bornYear: 'жылы туылған', horse_seqNo: '№',
+  horse_additional: 'Қосымша мәліметтер',
+  horse_namePlaceholder: 'Кличкасы (міндетті емес)',
+  horse_breedPlaceholder: 'Тұқымы (мысалы: Жабы, Ахалтеке)',
+  horse_colorPlaceholder: 'Түсі (мысалы: Торы, Қара)',
+  horse_pedigreeLinks: 'Шежіре байланыстары',
+  horse_notesPlaceholder: 'Жазбалар...',
+  horse_public: 'Жалпыға қолжетімді',
+  horse_sexLabel: 'Жынысы',
+  horse_brandFixed: 'Клеймо (өзгермейді)',
+  horse_pickerFather: 'Әкесін таңдаңыз (♂ Айғыр)',
+  horse_pickerMother: 'Шешесін таңдаңыз (♀ Бие)',
+  horse_brandError: 'Клеймо нөмірін енгізіңіз',
+  horse_brandFormatError: 'Клеймо форматы: ЖЖ/НН (мысалы: 26/35)',
+  horse_formatHint: 'Формат дұрыс емес. ЖЖ/НН форматын пайдаланыңыз',
+  horse_oddEven_m: '♂ Айғыр (тақ сан)', horse_oddEven_f: '♀ Бие (жұп сан)',
+
+  disp_label: 'Жағдай',
+  disp_alive: 'Тірі', disp_dead: 'Қайтыс болды', disp_sold: 'Сатылды',
+  disp_slaughtered: 'Сойылды', disp_other: 'Басқа',
+  disp_markAs: 'Жағдайды белгілеу',
+  disp_date: 'Күні', disp_notes: 'Қосымша мәліметтер',
+  disp_soldTo: 'Кімге сатылды', disp_price: 'Бағасы',
+  disp_restore: '✓ Тірі деп белгілеу',
+  disp_deadBanner: 'Қайтыс болды', disp_soldBanner: 'Сатылды',
+  disp_slaughteredBanner: 'Сойылды', disp_otherBanner: 'Басқа жағдай',
+  disp_notesHint: 'Кімге, бағасы, себебі...',
+  disp_confirm: 'Растаңыз',
+
+  search_placeholder: 'Клеймо, кличка немесе тұқым...',
+  search_hint: 'Клеймо нөмірі, кличка немесе тұқым бойынша іздеу жасаңыз',
+  search_notFound: 'бойынша табылмады',
+  picker_search: 'Клеймо немесе кличка...',
+  picker_clear: '— Белгісіз (тазарту)',
+  picker_empty: 'Лошадь табылмады',
+
+  report_general: 'Жалпы', report_total: 'Барлығы', report_alive: 'Тірі',
+  report_dead: 'Қайтыс', report_sold: 'Сатылды', report_slaughtered: 'Сойылды',
+  report_other: 'Басқа', report_stallions: '♂ Айғыр', report_mares: '♀ Бие',
+  report_births: 'Туылғандар жыл бойынша',
+  report_deaths: 'Қайтыс болғандар жыл бойынша',
+  report_sales: 'Сатылғандар жыл бойынша',
+  report_noData: 'Мәліметтер жоқ',
+  report_noDataHint: 'Лошадь қосқаннан кейін статистика пайда болады',
+  report_pdf: 'PDF есеп жасау және бөлісу', report_pdfLoading: 'PDF жасалуда...',
+
+  profile_theme: 'Тема', profile_dark: '🌙 Қараңғы тема', profile_light: '☀️ Жарық тема',
+  profile_ageNames: 'Жас атаулары', profile_language: 'Тіл / Язык',
+  profile_signOut: 'Жүйеден шығу', profile_signOutConfirm: 'Жүйеден шығасыз ба?',
+
+  lang_kk: 'Қазақша', lang_ru: 'Русский',
+
+  auth_subtitle: 'Ат тегінің кітабы', auth_email: 'Email', auth_password: 'Құпия сөз',
+  auth_login: 'Кіру', auth_loggingIn: 'Кіруде...',
+  auth_or: 'немесе', auth_google: 'Google арқылы кіру', auth_googleLoading: 'Жүктелуде...',
+  auth_noAccount: 'Аккаунт жоқ па?', auth_register: 'Тіркелу',
+  auth_hasAccount: 'Аккаунт бар ма?', auth_goLogin: 'Кіру',
+  auth_fullName: 'Аты-жөні', auth_fullNamePlaceholder: 'Аты Жөні',
+  auth_newAccount: 'Жаңа аккаунт', auth_registering: 'Тіркелуде...',
+  auth_success: 'Сәтті!', auth_registerSuccess: 'Тіркелу сәтті өтті!',
+  auth_fillAll: 'Барлық өрістерді толтырыңыз', auth_googleError: 'Google кіру қол жетімсіз',
+
+  age_slot_0: '0 жас (Жылқы құлыны)', age_slot_1: '1 жас', age_slot_2: '2 жас',
+  age_slot_3: '3 жас', age_slot_4: '4 жас', age_slot_5: '5 жас',
+  age_slot_6m: '6+ жас (♂)', age_slot_6f: '6+ жас (♀)',
+};
+
+const RU: typeof KK = {
+  error: 'Ошибка', yes: 'Да', no: 'Нет',
+  save: 'Сохранить', saving: 'Сохранение...', cancel: 'Отмена',
+  add: 'Добавить', delete: 'Удалить', close: 'Закрыть', edit: 'Изменить',
+  select: 'Выбрать...', unknown: 'Неизвестно',
+
+  nav_herds: 'Табуны', nav_search: 'Поиск', nav_reports: 'Отчёт', nav_profile: 'Кабинет',
+  nav_myHerds: 'Мои табуны', nav_addHorse: 'Добавить лошадь', nav_editHorse: 'Изменить',
+  nav_reports_title: 'Отчётность', nav_profile_title: 'Личный кабинет',
+
+  sex_male: '♂ Жеребец', sex_female: '♀ Кобыла',
+
+  herds_empty: 'Табунов нет',
+  herds_emptyHint: 'Нажмите «+» чтобы создать первый табун',
+  herds_new: 'Новый табун',
+  herds_name: 'Название (напр: Северный табун)',
+  herds_location: 'Местоположение (необязательно)',
+  herds_delete: 'Удалить табун',
+  herds_deleteConfirm: 'Все лошади также будут удалены. Подтвердить?',
+  herds_count: 'гол',
+
+  herd_all: 'Всего', herd_stallions: '♂ Жеребцы', herd_mares: '♀ Кобылы',
+  herd_empty: 'В этом табуне нет лошадей',
+  herd_emptyHint: 'Нажмите «+» чтобы добавить лошадь',
+
+  horse_breed: 'Порода', horse_color: 'Масть',
+  horse_pedigree: 'Шежире', horse_father: '♂ Отец', horse_mother: '♀ Мать',
+  horse_tree: '🌳 Дерево шежире', horse_offspring: 'Потомство',
+  horse_notes: 'Заметки', horse_born: 'год рождения', horse_age: 'лет',
+  horse_notFound: 'Не найдено', horse_deleteConfirm: 'удалить?',
+  horse_brandLabel: 'Клеймо', horse_brandPlaceholder: 'ГГ/НН (напр: 26/35)',
+  horse_bornYear: 'год рождения', horse_seqNo: '№',
+  horse_additional: 'Дополнительно',
+  horse_namePlaceholder: 'Кличка (необязательно)',
+  horse_breedPlaceholder: 'Порода (напр: Жабы, Акалтеке)',
+  horse_colorPlaceholder: 'Масть (напр: Гнедой, Вороной)',
+  horse_pedigreeLinks: 'Родословные связи',
+  horse_notesPlaceholder: 'Заметки...',
+  horse_public: 'Публичный профиль',
+  horse_sexLabel: 'Пол',
+  horse_brandFixed: 'Клеймо (не изменяется)',
+  horse_pickerFather: 'Выбрать отца (♂ Жеребец)',
+  horse_pickerMother: 'Выбрать мать (♀ Кобыла)',
+  horse_brandError: 'Введите номер клейма',
+  horse_brandFormatError: 'Формат клейма: ГГ/НН (напр: 26/35)',
+  horse_formatHint: 'Неверный формат. Используйте формат ГГ/НН',
+  horse_oddEven_m: '♂ Жеребец (нечётное)', horse_oddEven_f: '♀ Кобыла (чётное)',
+
+  disp_label: 'Статус',
+  disp_alive: 'Живой', disp_dead: 'Пал', disp_sold: 'Продан',
+  disp_slaughtered: 'Зарезан', disp_other: 'Другое',
+  disp_markAs: 'Изменить статус',
+  disp_date: 'Дата', disp_notes: 'Дополнительно',
+  disp_soldTo: 'Кому продан', disp_price: 'Цена',
+  disp_restore: '✓ Отметить живым',
+  disp_deadBanner: 'Пал', disp_soldBanner: 'Продан',
+  disp_slaughteredBanner: 'Зарезан', disp_otherBanner: 'Другой статус',
+  disp_notesHint: 'Кому, цена, причина...',
+  disp_confirm: 'Подтвердить',
+
+  search_placeholder: 'Клеймо, кличка или порода...',
+  search_hint: 'Поиск по клейму, кличке или породе',
+  search_notFound: 'не найдено',
+  picker_search: 'Клеймо или кличка...',
+  picker_clear: '— Неизвестно (сбросить)',
+  picker_empty: 'Лошадь не найдена',
+
+  report_general: 'Общее', report_total: 'Всего', report_alive: 'Живые',
+  report_dead: 'Павшие', report_sold: 'Проданы', report_slaughtered: 'Зарезаны',
+  report_other: 'Другие', report_stallions: '♂ Жеребцы', report_mares: '♀ Кобылы',
+  report_births: 'Рождения по годам',
+  report_deaths: 'Падёж по годам',
+  report_sales: 'Продажи по годам',
+  report_noData: 'Нет данных',
+  report_noDataHint: 'После добавления лошадей появится статистика',
+  report_pdf: 'Создать PDF отчёт и поделиться', report_pdfLoading: 'Создание PDF...',
+
+  profile_theme: 'Тема', profile_dark: '🌙 Тёмная тема', profile_light: '☀️ Светлая тема',
+  profile_ageNames: 'Возрастные названия', profile_language: 'Тіл / Язык',
+  profile_signOut: 'Выйти', profile_signOutConfirm: 'Вы уверены, что хотите выйти?',
+
+  lang_kk: 'Қазақша', lang_ru: 'Русский',
+
+  auth_subtitle: 'Книга родословных лошадей', auth_email: 'Email', auth_password: 'Пароль',
+  auth_login: 'Войти', auth_loggingIn: 'Вход...',
+  auth_or: 'или', auth_google: 'Войти через Google', auth_googleLoading: 'Загрузка...',
+  auth_noAccount: 'Нет аккаунта?', auth_register: 'Зарегистрироваться',
+  auth_hasAccount: 'Есть аккаунт?', auth_goLogin: 'Войти',
+  auth_fullName: 'ФИО', auth_fullNamePlaceholder: 'Имя Фамилия',
+  auth_newAccount: 'Новый аккаунт', auth_registering: 'Регистрация...',
+  auth_success: 'Успешно!', auth_registerSuccess: 'Регистрация прошла успешно!',
+  auth_fillAll: 'Заполните все поля', auth_googleError: 'Вход через Google недоступен',
+
+  age_slot_0: '0 лет (Жеребёнок)', age_slot_1: '1 год', age_slot_2: '2 года',
+  age_slot_3: '3 года', age_slot_4: '4 года', age_slot_5: '5 лет',
+  age_slot_6m: '6+ лет (♂)', age_slot_6f: '6+ лет (♀)',
+};
+
+export const TRANSLATIONS: Record<Lang, typeof KK> = { kk: KK, ru: RU };
+
+export function useT() {
+  const { lang } = useTheme();
+  return TRANSLATIONS[lang];
+}

@@ -7,6 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../context/ThemeContext';
+import { useT } from '../../i18n';
 import type { Colors } from '../../theme';
 import type { Herd } from '../../types';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -17,6 +18,7 @@ type Props = { navigation: NativeStackNavigationProp<HerdsStackParamList, 'Herds
 
 export default function HerdsScreen({ navigation }: Props) {
   const { C } = useTheme();
+  const t = useT();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(C, insets.bottom), [C, insets.bottom]);
 
@@ -48,7 +50,7 @@ export default function HerdsScreen({ navigation }: Props) {
       location: newLocation.trim() || null,
       owner_id: user!.id,
     });
-    if (error) Alert.alert('Қате', error.message);
+    if (error) Alert.alert(t.error, error.message);
     else {
       setModalVisible(false);
       setNewName('');
@@ -60,15 +62,15 @@ export default function HerdsScreen({ navigation }: Props) {
 
   function showHerdMenu(item: HerdWithCount) {
     Alert.alert(item.name, '', [
-      { text: 'Жою', style: 'destructive', onPress: () => confirmDelete(item.id) },
-      { text: 'Жабу', style: 'cancel' },
+      { text: t.delete, style: 'destructive', onPress: () => confirmDelete(item.id) },
+      { text: t.close, style: 'cancel' },
     ]);
   }
 
   function confirmDelete(id: string) {
-    Alert.alert('Табунды жою', 'Барлық лошадьдар да жойылады. Растайсыз ба?', [
-      { text: 'Жоқ', style: 'cancel' },
-      { text: 'Жою', style: 'destructive', onPress: async () => {
+    Alert.alert(t.herds_delete, t.herds_deleteConfirm, [
+      { text: t.no, style: 'cancel' },
+      { text: t.delete, style: 'destructive', onPress: async () => {
         await supabase.from('shezhire_herds').delete().eq('id', id);
         loadHerds();
       }},
@@ -87,8 +89,8 @@ export default function HerdsScreen({ navigation }: Props) {
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
               <Text style={styles.emptyIcon}>🐎</Text>
-              <Text style={styles.emptyTitle}>Табун жоқ</Text>
-              <Text style={styles.emptySub}>«+» батырмасын басып бірінші табунды қосыңыз</Text>
+              <Text style={styles.emptyTitle}>{t.herds_empty}</Text>
+              <Text style={styles.emptySub}>{t.herds_emptyHint}</Text>
             </View>
           }
           renderItem={({ item }) => {
@@ -106,7 +108,7 @@ export default function HerdsScreen({ navigation }: Props) {
                   <Text style={styles.cardTitle}>{item.name}</Text>
                   {item.location ? <Text style={styles.cardSub}>📍 {item.location}</Text> : null}
                   <View style={styles.countRow}>
-                    <Text style={styles.countTotal}>{total} бас</Text>
+                    <Text style={styles.countTotal}>{total} {t.herds_count}</Text>
                     {total > 0 && (
                       <>
                         <View style={styles.countDot} />
@@ -138,10 +140,10 @@ export default function HerdsScreen({ navigation }: Props) {
           <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={() => setModalVisible(false)} />
           <View style={styles.modal}>
             <View style={styles.modalHandle} />
-            <Text style={styles.modalTitle}>Жаңа табун</Text>
+            <Text style={styles.modalTitle}>{t.herds_new}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Атауы (мысалы: Солтүстік табун)"
+              placeholder={t.herds_name}
               placeholderTextColor={C.faint}
               value={newName}
               onChangeText={setNewName}
@@ -150,7 +152,7 @@ export default function HerdsScreen({ navigation }: Props) {
             />
             <TextInput
               style={styles.input}
-              placeholder="Орналасуы (міндетті емес)"
+              placeholder={t.herds_location}
               placeholderTextColor={C.faint}
               value={newLocation}
               onChangeText={setNewLocation}
@@ -159,10 +161,10 @@ export default function HerdsScreen({ navigation }: Props) {
             />
             <View style={styles.row}>
               <TouchableOpacity style={[styles.btn, styles.btnCancel]} onPress={() => setModalVisible(false)}>
-                <Text style={styles.btnText}>Бас тарту</Text>
+                <Text style={styles.btnText}>{t.cancel}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.btn, styles.btnAdd]} onPress={addHerd} disabled={saving}>
-                <Text style={[styles.btnText, { color: '#000' }]}>{saving ? '...' : 'Қосу'}</Text>
+                <Text style={[styles.btnText, { color: '#000' }]}>{saving ? '...' : t.add}</Text>
               </TouchableOpacity>
             </View>
           </View>

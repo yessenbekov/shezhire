@@ -26,6 +26,9 @@ export interface Horse {
   notes: string | null;
   is_public: boolean;
   died_at: string | null;
+  disposition: 'alive' | 'dead' | 'sold' | 'slaughtered' | 'other' | null;
+  disposition_notes: string | null;
+  disposed_at: string | null;
   created_at: string;
   // joined
   sire?: Horse | null;
