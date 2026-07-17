@@ -1,26 +1,25 @@
 import React from 'react';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path, Circle, Rect } from 'react-native-svg';
 
 interface Props { size?: number; color?: string }
 
-export default function IconHorse({ size = 26, color = '#C8922A' }: Props) {
+// Horseshoe — universally recognised equestrian symbol, clean at any size
+export default function IconHorse({ size = 26, color = '#9A6E14' }: Props) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      {/* Horse head silhouette – chess-knight profile, facing right */}
+      {/* Horseshoe arc */}
       <Path
-        d="M12 5 L14 2 L16 2 L17 5
-           C18.5 5.5 20 8 20 11.5
-           C20 15.5 18.5 18.5 16.5 20.5
-           C14.5 22.5 11.5 22.5 9.5 20.5
-           C7.5 18.5 7.5 15.5 8.5 12.5
-           C7.5 9.5 7.5 6.5 9 5
-           C10 3.5 11.5 4.5 12 5 Z"
-        fill={color}
+        d="M5 20 L5 10 C5 6.1 8.1 3 12 3 C15.9 3 19 6.1 19 10 L19 20"
+        stroke={color}
+        strokeWidth="3.2"
+        strokeLinecap="round"
+        fill="none"
       />
-      {/* Eye */}
-      <Circle cx="17" cy="9" r="1.1" fill="white" fillOpacity="0.55" />
-      {/* Nostril hint */}
-      <Circle cx="19.5" cy="19" r="0.7" fill="white" fillOpacity="0.35" />
+      {/* Nail holes */}
+      <Circle cx="5"  cy="20" r="1.6" fill={color} />
+      <Circle cx="19" cy="20" r="1.6" fill={color} />
+      <Circle cx="5"  cy="14" r="1"   fill={color} opacity={0.55} />
+      <Circle cx="19" cy="14" r="1"   fill={color} opacity={0.55} />
     </Svg>
   );
 }

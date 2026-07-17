@@ -24,20 +24,33 @@ const BORDER = '#E2C98A';
 const INPUT_BG = '#FBF6EC';
 const PLACEHOLDER = '#C4A26A';
 
-function HorseLogo() {
+// Genealogy tree — шежіре symbol
+function AppLogo() {
   return (
-    <Svg width={72} height={72} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M12 5 L14 2 L16 2 L17 5
-           C18.5 5.5 20 8 20 11.5
-           C20 15.5 18.5 18.5 16.5 20.5
-           C14.5 22.5 11.5 22.5 9.5 20.5
-           C7.5 18.5 7.5 15.5 8.5 12.5
-           C7.5 9.5 7.5 6.5 9 5
-           C10 3.5 11.5 4.5 12 5 Z"
-        fill={AMBER}
-      />
-      <Circle cx="17" cy="9" r="1.1" fill="white" fillOpacity="0.6" />
+    <Svg width={68} height={68} viewBox="0 0 24 24">
+      {/* Trunk */}
+      <Path d="M12 22 L12 14" stroke={AMBER} strokeWidth="2" strokeLinecap="round" />
+      {/* Main branches */}
+      <Path d="M12 14 L7 9"  stroke={AMBER} strokeWidth="1.8" strokeLinecap="round" />
+      <Path d="M12 14 L17 9" stroke={AMBER} strokeWidth="1.8" strokeLinecap="round" />
+      {/* Sub-branches left */}
+      <Path d="M7 9 L4.5 5.5"  stroke={AMBER} strokeWidth="1.4" strokeLinecap="round" />
+      <Path d="M7 9 L9.5 5.5"  stroke={AMBER} strokeWidth="1.4" strokeLinecap="round" />
+      {/* Sub-branches right */}
+      <Path d="M17 9 L14.5 5.5" stroke={AMBER} strokeWidth="1.4" strokeLinecap="round" />
+      <Path d="M17 9 L19.5 5.5" stroke={AMBER} strokeWidth="1.4" strokeLinecap="round" />
+      {/* Root node */}
+      <Circle cx="12" cy="22" r="1.6" fill={AMBER} />
+      {/* Mid node */}
+      <Circle cx="12" cy="14" r="2.1" fill={AMBER} />
+      {/* Branch nodes */}
+      <Circle cx="7"  cy="9"   r="1.8" fill={AMBER} />
+      <Circle cx="17" cy="9"   r="1.8" fill={AMBER} />
+      {/* Leaf nodes */}
+      <Circle cx="4.5"  cy="5.5" r="1.9" fill={AMBER} />
+      <Circle cx="9.5"  cy="5.5" r="1.9" fill={AMBER} />
+      <Circle cx="14.5" cy="5.5" r="1.9" fill={AMBER} />
+      <Circle cx="19.5" cy="5.5" r="1.9" fill={AMBER} />
     </Svg>
   );
 }
@@ -100,7 +113,7 @@ export default function LoginScreen({ navigation }: Props) {
         {/* ── Logo ── */}
         <View style={s.logoSection}>
           <View style={s.logoCircle}>
-            <HorseLogo />
+            <AppLogo />
           </View>
           <Text style={s.brand}>ШЕЖІРЕ</Text>
           <Text style={s.tagline}>АТ ТЕГІНІҢ КІТАБЫ</Text>

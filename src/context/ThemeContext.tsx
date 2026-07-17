@@ -32,7 +32,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) loadSettings(session.user.id);
-      else { setMode('dark'); setAgeNames(DEFAULT_AGE_NAMES); }
+      else { setMode('light'); setAgeNames(DEFAULT_AGE_NAMES); }
     });
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) loadSettings(user.id);
