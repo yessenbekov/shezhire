@@ -38,7 +38,8 @@ export default function HorsePicker({ visible, sexFilter, excludeId, onSelect, o
   async function loadHorses() {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    let q = supabase.from('shezhire_horses').select('*').eq('owner_id', user!.id).order('brand');
+    if (!user) { setLoading(false); return; }
+    let q = supabase.from('shezhire_horses').select('*').eq('owner_id', user.id).order('brand');
     if (sexFilter) q = q.eq('sex', sexFilter);
     const { data } = await q;
     setHorses((data ?? []).filter(h => h.id !== excludeId) as Horse[]);

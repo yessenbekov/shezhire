@@ -164,7 +164,7 @@ export default function HorseDetailScreen({ navigation, route }: Props) {
 
         <Text style={[styles.section, { color: C.gold }]}>{t.horse_pedigree}</Text>
         <View style={[styles.pedigreeBox, { backgroundColor: C.surface, borderColor: C.border }]}>
-          <PedigreeRow label={t.horse_father} horse={horse.sire as Horse | null} color={C.male} C={C} onPress={id => navigation.push('HorseDetail', { horseId: id })} />
+          <PedigreeRow label={t.horse_father} horse={horse.sire as Horse | null} color={C.male} C={C} onPress={id => navigation.push('HorseDetail', { horseId: id })} unknown={t.unknown} />
           <View style={[styles.pedDivider, { backgroundColor: C.border }]} />
           <PedigreeRow label={t.horse_mother} horse={horse.dam as Horse | null} color={C.female} C={C} onPress={id => navigation.push('HorseDetail', { horseId: id })} unknown={t.unknown} />
         </View>

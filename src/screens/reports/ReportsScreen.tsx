@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import EmptyState from '../../components/EmptyState';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -86,13 +87,7 @@ export default function ReportsScreen() {
   if (loading) return <ActivityIndicator size="large" color={C.gold} style={{ flex: 1, backgroundColor: C.bg }} />;
 
   if (!stats || stats.total === 0) {
-    return (
-      <View style={[s.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ fontSize: 48, marginBottom: 16 }}>📊</Text>
-        <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{t.report_noData}</Text>
-        <Text style={{ color: C.muted, fontSize: 13, marginTop: 8 }}>{t.report_noDataHint}</Text>
-      </View>
-    );
+    return <EmptyState icon="tree" title={t.report_noData} subtitle={t.report_noDataHint} />;
   }
 
   const birthYears = Object.keys(stats.byBirthYear).map(Number).sort((a, b) => b - a);
