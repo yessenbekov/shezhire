@@ -51,6 +51,11 @@ const KK = {
   horse_brandFormatError: 'Клеймо форматы: ЖЖ/НН (мысалы: 26/35)',
   horse_formatHint: 'Формат дұрыс емес. ЖЖ/НН форматын пайдаланыңыз',
   horse_oddEven_m: '♂ Айғыр (тақ сан)', horse_oddEven_f: '♀ Бие (жұп сан)',
+  horse_yearInput: 'Жыл (ЖЖ)', horse_seqInput: 'Реттік нөмір',
+  horse_yearPlaceholder: '26', horse_seqPlaceholder: '35',
+  horse_yearError: 'Туылған жылды енгізіңіз (мысалы: 26)',
+  horse_seqError: 'Реттік нөмірді енгізіңіз',
+  horse_sexAutoHint: 'Нөмір бойынша автоматты, өзгертуге болады',
 
   disp_label: 'Жағдай',
   disp_alive: 'Тірі', disp_dead: 'Қайтыс болды', disp_sold: 'Сатылды',
@@ -153,6 +158,11 @@ const RU: typeof KK = {
   horse_brandFormatError: 'Формат клейма: ГГ/НН (напр: 26/35)',
   horse_formatHint: 'Неверный формат. Используйте формат ГГ/НН',
   horse_oddEven_m: '♂ Жеребец (нечётное)', horse_oddEven_f: '♀ Кобыла (чётное)',
+  horse_yearInput: 'Год (ГГ)', horse_seqInput: 'Порядковый номер',
+  horse_yearPlaceholder: '26', horse_seqPlaceholder: '35',
+  horse_yearError: 'Введите год рождения (напр: 26)',
+  horse_seqError: 'Введите порядковый номер',
+  horse_sexAutoHint: 'Автоматически по номеру, можно изменить',
 
   disp_label: 'Статус',
   disp_alive: 'Живой', disp_dead: 'Пал', disp_sold: 'Продан',

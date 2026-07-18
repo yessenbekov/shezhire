@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Switch, KeyboardAvoidingView, Platform } from 'react-native';
 import { supabase } from '../../lib/supabase';
-import { parseBrand } from '../../types';
 import { useTheme } from '../../context/ThemeContext';
 import { useT } from '../../i18n';
 import HorsePicker from '../../components/HorsePicker';
@@ -22,8 +21,10 @@ export default function AddHorseScreen({ navigation, route }: Props) {
   const t = useT();
   const styles = useMemo(() => makeStyles(C), [C]);
 
-  const [brand, setBrand] = useState('');
-  const [parsedInfo, setParsedInfo] = useState<{ sequenceNo: number; birthYear: number; sex: 'м' | 'ж' } | null>(null);
+  const [yearStr, setYearStr] = useState('');
+  const [seqStr, setSeqStr] = useState('');
+  const [sex, setSex] = useState<'м' | 'ж'>('м');
+  const [sexOverridden, setSexOverridden] = useState(false);
   const [name, setName] = useState('');
   const [breed, setBreed] = useState('');
   const [color, setColor] = useState('');
@@ -36,18 +37,38 @@ export default function AddHorseScreen({ navigation, route }: Props) {
   const [showSirePicker, setShowSirePicker] = useState(false);
   const [showDamPicker, setShowDamPicker] = useState(false);
 
-  useEffect(() => { setParsedInfo(parseBrand(brand)); }, [brand]);
+  const seqRef = useRef<TextInput>(null);
+
+  // Auto-determine sex from sequence number unless user overrode it
+  useEffect(() => {
+    if (sexOverridden) return;
+    const n = parseInt(seqStr, 10);
+    if (!isNaN(n)) setSex(n % 2 === 0 ? 'ж' : 'м');
+  }, [seqStr]);
+
+  function handleSexPress(s: 'м' | 'ж') {
+    setSex(s);
+    setSexOverridden(true);
+  }
+
+  const yearNum = parseInt(yearStr, 10);
+  const seqNum = parseInt(seqStr, 10);
+  const brandPreview = yearStr.trim() && seqStr.trim() && !isNaN(yearNum) && !isNaN(seqNum)
+    ? `${String(yearNum).padStart(2, '0')}/${seqNum}`
+    : null;
+  const birthYear = 2000 + (isNaN(yearNum) ? 0 : yearNum);
 
   async function save() {
-    if (!brand.trim()) {
-      Alert.alert(t.error, t.horse_brandError);
+    if (!yearStr.trim() || isNaN(yearNum) || yearNum < 0 || yearNum > 99) {
+      Alert.alert(t.error, t.horse_yearError);
       return;
     }
-    const parsed = parseBrand(brand.trim());
-    if (!parsed) {
-      Alert.alert(t.error, t.horse_brandFormatError);
+    if (!seqStr.trim() || isNaN(seqNum) || seqNum < 1) {
+      Alert.alert(t.error, t.horse_seqError);
       return;
     }
+
+    const brand = `${String(yearNum).padStart(2, '0')}/${seqNum}`;
 
     setSaving(true);
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
@@ -60,10 +81,10 @@ export default function AddHorseScreen({ navigation, route }: Props) {
     const { error } = await supabase.from('shezhire_horses').insert({
       owner_id: user.id,
       herd_id: herdId ?? null,
-      brand: brand.trim(),
-      sequence_no: parsed.sequenceNo,
-      birth_year: parsed.birthYear,
-      sex: parsed.sex,
+      brand,
+      sequence_no: seqNum,
+      birth_year: 2000 + yearNum,
+      sex,
       name: name.trim() || null,
       breed: breed.trim() || null,
       color: color.trim() || null,
@@ -84,31 +105,74 @@ export default function AddHorseScreen({ navigation, route }: Props) {
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
 
+          {/* Brand fields */}
           <Text style={styles.section}>{t.horse_brandLabel}</Text>
-          <TextInput
-            style={styles.input}
-            placeholder={t.horse_brandPlaceholder}
-            placeholderTextColor={C.faint}
-            value={brand}
-            onChangeText={setBrand}
-            autoCapitalize="none"
-          />
-          {parsedInfo && (
-            <View style={[styles.parsedBox, { backgroundColor: C.maleBg, borderColor: C.maleBorder }]}>
-              <Text style={[styles.parsedText, { color: C.male }]}>📅 {parsedInfo.birthYear} {t.horse_bornYear}</Text>
-              <Text style={[styles.parsedText, { color: parsedInfo.sex === 'м' ? C.male : C.female }]}>{parsedInfo.sex === 'м' ? t.horse_oddEven_m : t.horse_oddEven_f}</Text>
-              <Text style={[styles.parsedText, { color: C.male }]}>{t.horse_seqNo} {parsedInfo.sequenceNo}</Text>
+          <View style={styles.brandRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.fieldLabel}>{t.horse_yearInput}</Text>
+              <TextInput
+                style={styles.input}
+                placeholder={t.horse_yearPlaceholder}
+                placeholderTextColor={C.faint}
+                value={yearStr}
+                onChangeText={v => setYearStr(v.replace(/\D/g, '').slice(0, 2))}
+                keyboardType="number-pad"
+                maxLength={2}
+                returnKeyType="next"
+                onSubmitEditing={() => seqRef.current?.focus()}
+              />
+            </View>
+            <Text style={styles.brandSlash}>/</Text>
+            <View style={{ flex: 1.4 }}>
+              <Text style={styles.fieldLabel}>{t.horse_seqInput}</Text>
+              <TextInput
+                ref={seqRef}
+                style={styles.input}
+                placeholder={t.horse_seqPlaceholder}
+                placeholderTextColor={C.faint}
+                value={seqStr}
+                onChangeText={v => setSeqStr(v.replace(/\D/g, ''))}
+                keyboardType="number-pad"
+                returnKeyType="done"
+              />
+            </View>
+          </View>
+
+          {brandPreview && (
+            <View style={[styles.previewBox, { backgroundColor: C.maleBg, borderColor: C.maleBorder }]}>
+              <Text style={[styles.previewLabel, { color: C.muted }]}>{t.horse_brandLabel}</Text>
+              <Text style={[styles.previewBrand, { color: C.gold }]}>{brandPreview}</Text>
+              <Text style={[styles.previewYear, { color: C.muted }]}>
+                {birthYear} {t.horse_bornYear}
+              </Text>
             </View>
           )}
-          {brand && !parsedInfo && (
-            <Text style={styles.error}>{t.horse_formatHint}</Text>
-          )}
 
+          {/* Sex */}
+          <Text style={styles.section}>{t.horse_sexLabel}</Text>
+          <Text style={[styles.sexHint, { color: C.faint }]}>{t.horse_sexAutoHint}</Text>
+          <View style={styles.sexRow}>
+            <TouchableOpacity
+              style={[styles.sexBtn, { borderColor: sex === 'м' ? C.maleBorder : C.border, backgroundColor: sex === 'м' ? C.maleBg : C.surface }]}
+              onPress={() => handleSexPress('м')}
+            >
+              <Text style={[styles.sexBtnText, { color: sex === 'м' ? C.male : C.muted }]}>{t.sex_male}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.sexBtn, { borderColor: sex === 'ж' ? C.femaleBorder : C.border, backgroundColor: sex === 'ж' ? C.femaleBg : C.surface }]}
+              onPress={() => handleSexPress('ж')}
+            >
+              <Text style={[styles.sexBtnText, { color: sex === 'ж' ? C.female : C.muted }]}>{t.sex_female}</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Additional */}
           <Text style={styles.section}>{t.horse_additional}</Text>
           <TextInput style={styles.input} placeholder={t.horse_namePlaceholder} placeholderTextColor={C.faint} value={name} onChangeText={setName} />
           <TextInput style={styles.input} placeholder={t.horse_breedPlaceholder} placeholderTextColor={C.faint} value={breed} onChangeText={setBreed} />
           <TextInput style={styles.input} placeholder={t.horse_colorPlaceholder} placeholderTextColor={C.faint} value={color} onChangeText={setColor} />
 
+          {/* Pedigree */}
           <Text style={styles.section}>{t.horse_pedigreeLinks}</Text>
 
           <TouchableOpacity style={styles.pickerBtn} onPress={() => setShowSirePicker(true)}>
@@ -180,11 +244,19 @@ export default function AddHorseScreen({ navigation, route }: Props) {
 
 const makeStyles = (C: Colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: C.bg },
-  section: { color: C.gold, fontSize: 13, fontWeight: '600', marginBottom: 8, marginTop: 20, textTransform: 'uppercase', letterSpacing: 1 },
+  section: { color: C.gold, fontSize: 13, fontWeight: '600', marginBottom: 6, marginTop: 20, textTransform: 'uppercase', letterSpacing: 1 },
+  fieldLabel: { color: C.muted, fontSize: 12, marginBottom: 5 },
+  brandRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 4 },
+  brandSlash: { color: C.gold, fontSize: 28, fontWeight: '800', paddingBottom: 12, paddingHorizontal: 2 },
   input: { backgroundColor: C.surface, color: C.text, borderRadius: 10, padding: 14, marginBottom: 10, fontSize: 16, borderWidth: 1, borderColor: C.border },
-  parsedBox: { borderRadius: 10, padding: 12, marginBottom: 10, borderWidth: 1 },
-  parsedText: { fontSize: 14, marginBottom: 2 },
-  error: { color: C.danger, fontSize: 13, marginBottom: 10 },
+  previewBox: { borderRadius: 12, padding: 14, marginBottom: 4, borderWidth: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  previewLabel: { fontSize: 12 },
+  previewBrand: { fontSize: 26, fontWeight: '900', fontFamily: 'monospace', flex: 1 },
+  previewYear: { fontSize: 13 },
+  sexHint: { fontSize: 12, marginBottom: 8, marginTop: -2 },
+  sexRow: { flexDirection: 'row', gap: 10, marginBottom: 4 },
+  sexBtn: { flex: 1, borderRadius: 12, padding: 14, alignItems: 'center', borderWidth: 2 },
+  sexBtnText: { fontSize: 15, fontWeight: '700' },
   pickerBtn: { backgroundColor: C.surface, borderRadius: 10, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: C.border, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   pickerLabel: { color: C.muted, fontSize: 12, marginBottom: 3 },
   pickerValue: { color: C.gold, fontSize: 15, fontWeight: '600' },
