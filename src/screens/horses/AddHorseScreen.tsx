@@ -10,6 +10,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import type { HerdsStackParamList } from '../../navigation';
 
+type BrandMode = 'standard' | 'custom';
+
 type Props = {
   navigation: NativeStackNavigationProp<HerdsStackParamList, 'AddHorse'>;
   route: RouteProp<HerdsStackParamList, 'AddHorse'>;
@@ -21,10 +23,19 @@ export default function AddHorseScreen({ navigation, route }: Props) {
   const t = useT();
   const styles = useMemo(() => makeStyles(C), [C]);
 
+  const [brandMode, setBrandMode] = useState<BrandMode>('standard');
+
+  // Standard mode fields
   const [yearStr, setYearStr] = useState('');
   const [seqStr, setSeqStr] = useState('');
-  const [sex, setSex] = useState<'м' | 'ж'>('м');
   const [sexOverridden, setSexOverridden] = useState(false);
+
+  // Custom mode fields
+  const [customBrand, setCustomBrand] = useState('');
+  const [customYearStr, setCustomYearStr] = useState('');
+
+  // Shared
+  const [sex, setSex] = useState<'м' | 'ж'>('м');
   const [name, setName] = useState('');
   const [breed, setBreed] = useState('');
   const [color, setColor] = useState('');
@@ -39,36 +50,62 @@ export default function AddHorseScreen({ navigation, route }: Props) {
 
   const seqRef = useRef<TextInput>(null);
 
-  // Auto-determine sex from sequence number unless user overrode it
+  // Auto-detect sex from seq number (standard mode only, unless user overrode)
   useEffect(() => {
-    if (sexOverridden) return;
+    if (brandMode !== 'standard' || sexOverridden) return;
     const n = parseInt(seqStr, 10);
     if (!isNaN(n)) setSex(n % 2 === 0 ? 'ж' : 'м');
-  }, [seqStr]);
+  }, [seqStr, brandMode]);
 
   function handleSexPress(s: 'м' | 'ж') {
     setSex(s);
     setSexOverridden(true);
   }
 
+  function switchMode(mode: BrandMode) {
+    setBrandMode(mode);
+    setSexOverridden(false);
+    setSex('м');
+  }
+
+  // Standard mode: assembled brand preview
   const yearNum = parseInt(yearStr, 10);
   const seqNum = parseInt(seqStr, 10);
   const brandPreview = yearStr.trim() && seqStr.trim() && !isNaN(yearNum) && !isNaN(seqNum)
     ? `${String(yearNum).padStart(2, '0')}/${seqNum}`
     : null;
-  const birthYear = 2000 + (isNaN(yearNum) ? 0 : yearNum);
 
   async function save() {
-    if (!yearStr.trim() || isNaN(yearNum) || yearNum < 0 || yearNum > 99) {
-      Alert.alert(t.error, t.horse_yearError);
-      return;
-    }
-    if (!seqStr.trim() || isNaN(seqNum) || seqNum < 1) {
-      Alert.alert(t.error, t.horse_seqError);
-      return;
-    }
+    let brand: string;
+    let birthYear: number;
+    let sequenceNo: number;
 
-    const brand = `${String(yearNum).padStart(2, '0')}/${seqNum}`;
+    if (brandMode === 'standard') {
+      if (!yearStr.trim() || isNaN(yearNum) || yearNum < 0 || yearNum > 99) {
+        Alert.alert(t.error, t.horse_yearError);
+        return;
+      }
+      if (!seqStr.trim() || isNaN(seqNum) || seqNum < 1) {
+        Alert.alert(t.error, t.horse_seqError);
+        return;
+      }
+      brand = `${String(yearNum).padStart(2, '0')}/${seqNum}`;
+      birthYear = 2000 + yearNum;
+      sequenceNo = seqNum;
+    } else {
+      if (!customBrand.trim()) {
+        Alert.alert(t.error, t.horse_brandCustomError);
+        return;
+      }
+      const cy = parseInt(customYearStr, 10);
+      if (!customYearStr.trim() || isNaN(cy) || cy < 1900 || cy > 2100) {
+        Alert.alert(t.error, t.horse_yearFullError);
+        return;
+      }
+      brand = customBrand.trim();
+      birthYear = cy;
+      sequenceNo = 0;
+    }
 
     setSaving(true);
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
@@ -82,8 +119,8 @@ export default function AddHorseScreen({ navigation, route }: Props) {
       owner_id: user.id,
       herd_id: herdId ?? null,
       brand,
-      sequence_no: seqNum,
-      birth_year: 2000 + yearNum,
+      sequence_no: sequenceNo,
+      birth_year: birthYear,
       sex,
       name: name.trim() || null,
       breed: breed.trim() || null,
@@ -100,69 +137,120 @@ export default function AddHorseScreen({ navigation, route }: Props) {
     setSaving(false);
   }
 
+  const isMale = sex === 'м';
+
   return (
     <>
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: C.bg }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled">
 
-          {/* Brand fields */}
+          {/* Brand section */}
           <Text style={styles.section}>{t.horse_brandLabel}</Text>
-          <View style={styles.brandRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.fieldLabel}>{t.horse_yearInput}</Text>
-              <TextInput
-                style={styles.input}
-                placeholder={t.horse_yearPlaceholder}
-                placeholderTextColor={C.faint}
-                value={yearStr}
-                onChangeText={v => setYearStr(v.replace(/\D/g, '').slice(0, 2))}
-                keyboardType="number-pad"
-                maxLength={2}
-                returnKeyType="next"
-                onSubmitEditing={() => seqRef.current?.focus()}
-              />
-            </View>
-            <Text style={styles.brandSlash}>/</Text>
-            <View style={{ flex: 1.4 }}>
-              <Text style={styles.fieldLabel}>{t.horse_seqInput}</Text>
-              <TextInput
-                ref={seqRef}
-                style={styles.input}
-                placeholder={t.horse_seqPlaceholder}
-                placeholderTextColor={C.faint}
-                value={seqStr}
-                onChangeText={v => setSeqStr(v.replace(/\D/g, ''))}
-                keyboardType="number-pad"
-                returnKeyType="done"
-              />
-            </View>
+
+          {/* Mode toggle */}
+          <View style={styles.modeRow}>
+            <TouchableOpacity
+              style={[styles.modeBtn, brandMode === 'standard' && { backgroundColor: C.gold, borderColor: C.gold }]}
+              onPress={() => switchMode('standard')}
+            >
+              <Text style={[styles.modeBtnText, { color: brandMode === 'standard' ? '#000' : C.muted }]}>
+                {t.horse_modeStandard}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modeBtn, brandMode === 'custom' && { backgroundColor: C.gold, borderColor: C.gold }]}
+              onPress={() => switchMode('custom')}
+            >
+              <Text style={[styles.modeBtnText, { color: brandMode === 'custom' ? '#000' : C.muted }]}>
+                {t.horse_modeCustom}
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          {brandPreview && (
-            <View style={[styles.previewBox, { backgroundColor: C.maleBg, borderColor: C.maleBorder }]}>
-              <Text style={[styles.previewLabel, { color: C.muted }]}>{t.horse_brandLabel}</Text>
-              <Text style={[styles.previewBrand, { color: C.gold }]}>{brandPreview}</Text>
-              <Text style={[styles.previewYear, { color: C.muted }]}>
-                {birthYear} {t.horse_bornYear}
-              </Text>
-            </View>
+          {brandMode === 'standard' ? (
+            <>
+              <View style={styles.brandRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.fieldLabel}>{t.horse_yearInput}</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder={t.horse_yearPlaceholder}
+                    placeholderTextColor={C.faint}
+                    value={yearStr}
+                    onChangeText={v => setYearStr(v.replace(/\D/g, '').slice(0, 2))}
+                    keyboardType="number-pad"
+                    maxLength={2}
+                    returnKeyType="next"
+                    onSubmitEditing={() => seqRef.current?.focus()}
+                  />
+                </View>
+                <Text style={styles.brandSlash}>/</Text>
+                <View style={{ flex: 1.4 }}>
+                  <Text style={styles.fieldLabel}>{t.horse_seqInput}</Text>
+                  <TextInput
+                    ref={seqRef}
+                    style={styles.input}
+                    placeholder={t.horse_seqPlaceholder}
+                    placeholderTextColor={C.faint}
+                    value={seqStr}
+                    onChangeText={v => setSeqStr(v.replace(/\D/g, ''))}
+                    keyboardType="number-pad"
+                    returnKeyType="done"
+                  />
+                </View>
+              </View>
+
+              {brandPreview && (
+                <View style={[styles.previewBox, { backgroundColor: C.maleBg, borderColor: C.maleBorder }]}>
+                  <Text style={[styles.previewLabel, { color: C.muted }]}>{t.horse_brandLabel}</Text>
+                  <Text style={[styles.previewBrand, { color: C.gold }]}>{brandPreview}</Text>
+                  <Text style={[styles.previewYear, { color: C.muted }]}>
+                    {2000 + yearNum} {t.horse_bornYear}
+                  </Text>
+                </View>
+              )}
+            </>
+          ) : (
+            <>
+              <Text style={styles.fieldLabel}>{t.horse_brandLabel}</Text>
+              <TextInput
+                style={styles.input}
+                placeholder={t.horse_brandCustomPlaceholder}
+                placeholderTextColor={C.faint}
+                value={customBrand}
+                onChangeText={setCustomBrand}
+                autoCapitalize="characters"
+              />
+              <Text style={styles.fieldLabel}>{t.horse_yearFull}</Text>
+              <TextInput
+                style={styles.input}
+                placeholder={t.horse_yearFullPlaceholder}
+                placeholderTextColor={C.faint}
+                value={customYearStr}
+                onChangeText={v => setCustomYearStr(v.replace(/\D/g, '').slice(0, 4))}
+                keyboardType="number-pad"
+                maxLength={4}
+              />
+            </>
           )}
 
           {/* Sex */}
           <Text style={styles.section}>{t.horse_sexLabel}</Text>
-          <Text style={[styles.sexHint, { color: C.faint }]}>{t.horse_sexAutoHint}</Text>
+          {brandMode === 'standard' && (
+            <Text style={[styles.sexHint, { color: C.faint }]}>{t.horse_sexAutoHint}</Text>
+          )}
           <View style={styles.sexRow}>
             <TouchableOpacity
-              style={[styles.sexBtn, { borderColor: sex === 'м' ? C.maleBorder : C.border, backgroundColor: sex === 'м' ? C.maleBg : C.surface }]}
+              style={[styles.sexBtn, { borderColor: isMale ? C.maleBorder : C.border, backgroundColor: isMale ? C.maleBg : C.surface }]}
               onPress={() => handleSexPress('м')}
             >
-              <Text style={[styles.sexBtnText, { color: sex === 'м' ? C.male : C.muted }]}>{t.sex_male}</Text>
+              <Text style={[styles.sexBtnText, { color: isMale ? C.male : C.muted }]}>{t.sex_male}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.sexBtn, { borderColor: sex === 'ж' ? C.femaleBorder : C.border, backgroundColor: sex === 'ж' ? C.femaleBg : C.surface }]}
+              style={[styles.sexBtn, { borderColor: !isMale ? C.femaleBorder : C.border, backgroundColor: !isMale ? C.femaleBg : C.surface }]}
               onPress={() => handleSexPress('ж')}
             >
-              <Text style={[styles.sexBtnText, { color: sex === 'ж' ? C.female : C.muted }]}>{t.sex_female}</Text>
+              <Text style={[styles.sexBtnText, { color: !isMale ? C.female : C.muted }]}>{t.sex_female}</Text>
             </TouchableOpacity>
           </View>
 
@@ -180,8 +268,7 @@ export default function AddHorseScreen({ navigation, route }: Props) {
               <Text style={styles.pickerLabel}>{t.horse_father}</Text>
               {sire
                 ? <Text style={styles.pickerValue}>{sire.brand}{sire.name ? ` · ${sire.name}` : ''}</Text>
-                : <Text style={styles.pickerPlaceholder}>{t.select}</Text>
-              }
+                : <Text style={styles.pickerPlaceholder}>{t.select}</Text>}
             </View>
             <Text style={styles.pickerArrow}>›</Text>
           </TouchableOpacity>
@@ -191,8 +278,7 @@ export default function AddHorseScreen({ navigation, route }: Props) {
               <Text style={styles.pickerLabel}>{t.horse_mother}</Text>
               {dam
                 ? <Text style={styles.pickerValue}>{dam.brand}{dam.name ? ` · ${dam.name}` : ''}</Text>
-                : <Text style={styles.pickerPlaceholder}>{t.select}</Text>
-              }
+                : <Text style={styles.pickerPlaceholder}>{t.select}</Text>}
             </View>
             <Text style={styles.pickerArrow}>›</Text>
           </TouchableOpacity>
@@ -246,6 +332,9 @@ const makeStyles = (C: Colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: C.bg },
   section: { color: C.gold, fontSize: 13, fontWeight: '600', marginBottom: 6, marginTop: 20, textTransform: 'uppercase', letterSpacing: 1 },
   fieldLabel: { color: C.muted, fontSize: 12, marginBottom: 5 },
+  modeRow: { flexDirection: 'row', gap: 8, marginBottom: 14 },
+  modeBtn: { flex: 1, borderRadius: 10, paddingVertical: 10, alignItems: 'center', borderWidth: 1.5, borderColor: C.border, backgroundColor: C.surface },
+  modeBtnText: { fontSize: 14, fontWeight: '700' },
   brandRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 4 },
   brandSlash: { color: C.gold, fontSize: 28, fontWeight: '800', paddingBottom: 12, paddingHorizontal: 2 },
   input: { backgroundColor: C.surface, color: C.text, borderRadius: 10, padding: 14, marginBottom: 10, fontSize: 16, borderWidth: 1, borderColor: C.border },

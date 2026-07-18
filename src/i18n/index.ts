@@ -56,6 +56,11 @@ const KK = {
   horse_yearError: 'Туылған жылды енгізіңіз (мысалы: 26)',
   horse_seqError: 'Реттік нөмірді енгізіңіз',
   horse_sexAutoHint: 'Нөмір бойынша автоматты, өзгертуге болады',
+  horse_modeStandard: 'Стандартты', horse_modeCustom: 'Еркін',
+  horse_brandCustomPlaceholder: 'Кез келген белгі...',
+  horse_yearFull: 'Туылған жылы', horse_yearFullPlaceholder: '2020',
+  horse_yearFullError: 'Туылған жылды енгізіңіз (мысалы: 2020)',
+  horse_brandCustomError: 'Клеймо немесе белгіні енгізіңіз',
 
   disp_label: 'Жағдай',
   disp_alive: 'Тірі', disp_dead: 'Қайтыс болды', disp_sold: 'Сатылды',
@@ -163,6 +168,11 @@ const RU: typeof KK = {
   horse_yearError: 'Введите год рождения (напр: 26)',
   horse_seqError: 'Введите порядковый номер',
   horse_sexAutoHint: 'Автоматически по номеру, можно изменить',
+  horse_modeStandard: 'Стандартное', horse_modeCustom: 'Произвольное',
+  horse_brandCustomPlaceholder: 'Любой формат...',
+  horse_yearFull: 'Год рождения', horse_yearFullPlaceholder: '2020',
+  horse_yearFullError: 'Введите год рождения (напр: 2020)',
+  horse_brandCustomError: 'Введите клеймо или метку',
 
   disp_label: 'Статус',
   disp_alive: 'Живой', disp_dead: 'Пал', disp_sold: 'Продан',
