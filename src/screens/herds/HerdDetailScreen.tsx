@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import EmptyState from '../../components/EmptyState';
+import SkeletonCard from '../../components/SkeletonCard';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
@@ -70,18 +72,24 @@ export default function HerdDetailScreen({ navigation, route }: Props) {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color={C.gold} style={{ flex: 1 }} />
+        <View style={{ padding: 14 }}>
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </View>
       ) : (
         <FlatList
           data={horses}
           keyExtractor={h => h.id}
           contentContainerStyle={{ padding: 14, paddingBottom: 100 }}
           ListEmptyComponent={
-            <View style={styles.emptyWrap}>
-              <Text style={styles.emptyIcon}>🐎</Text>
-              <Text style={styles.emptyTitle}>{t.herd_empty}</Text>
-              <Text style={styles.emptySub}>{t.herd_emptyHint}</Text>
-            </View>
+            <EmptyState
+              icon="horses"
+              title={t.herd_empty}
+              subtitle={t.herd_emptyHint}
+              actionLabel={t.nav_addHorse}
+              onAction={() => navigation.navigate('AddHorse', { herdId })}
+            />
           }
           renderItem={({ item }) => {
             const isMale = item.sex === 'м';

@@ -1,10 +1,12 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useState, useRef, useMemo } from 'react';
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../context/ThemeContext';
 import { useT } from '../../i18n';
 import { getAgeName } from '../../utils/horseAge';
+import EmptyState from '../../components/EmptyState';
+import SkeletonCard from '../../components/SkeletonCard';
 import type { Colors } from '../../theme';
 import type { Horse } from '../../types';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -20,21 +22,55 @@ export default function SearchScreen() {
   const [results, setResults] = useState<Horse[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const search = useCallback(async (q: string) => {
-    if (!q.trim()) { setResults([]); setSearched(false); return; }
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const generation = useRef(0);
+
+  function handleQueryChange(q: string) {
+    setQuery(q);
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    if (!q.trim()) {
+      setResults([]);
+      setSearched(false);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     setLoading(true);
-    setSearched(true);
-    const { data } = await supabase
+    const gen = ++generation.current;
+    debounceTimer.current = setTimeout(() => runSearch(q, gen), 300);
+  }
+
+  async function runSearch(q: string, gen: number) {
+    setError(null);
+    const { data, error: err } = await supabase
       .from('shezhire_horses')
       .select('*')
       .eq('is_public', true)
       .or(`brand.ilike.%${q}%,name.ilike.%${q}%,breed.ilike.%${q}%`)
       .order('brand')
       .limit(50);
+
+    if (gen !== generation.current) return; // stale response — discard
+
+    if (err) setError(err.message);
     setResults((data ?? []) as Horse[]);
+    setSearched(true);
     setLoading(false);
-  }, []);
+  }
+
+  function clearSearch() {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    generation.current++;
+    setQuery('');
+    setResults([]);
+    setSearched(false);
+    setLoading(false);
+    setError(null);
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: C.bg }}>
@@ -45,60 +81,67 @@ export default function SearchScreen() {
           placeholder={t.search_placeholder}
           placeholderTextColor={C.faint}
           value={query}
-          onChangeText={q => { setQuery(q); search(q); }}
+          onChangeText={handleQueryChange}
           autoCapitalize="none"
         />
         {query.length > 0 && (
-          <TouchableOpacity onPress={() => { setQuery(''); setResults([]); setSearched(false); }}>
+          <TouchableOpacity onPress={clearSearch}>
             <Text style={{ color: C.muted, fontSize: 18, paddingLeft: 8 }}>✕</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {loading && <ActivityIndicator size="small" color={C.gold} style={{ marginTop: 24 }} />}
+      {loading && (
+        <View style={{ padding: 14 }}>
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </View>
+      )}
 
       {!loading && !searched && (
-        <View style={styles.hintWrap}>
-          <Text style={styles.hintIcon}>🔍</Text>
-          <Text style={styles.hintText}>{t.search_hint}</Text>
-        </View>
+        <EmptyState icon="search" title={t.search_hint} />
       )}
 
-      {!loading && searched && results.length === 0 && (
-        <View style={styles.hintWrap}>
-          <Text style={styles.hintIcon}>🐴</Text>
-          <Text style={styles.hintText}>«{query}» {t.search_notFound}</Text>
-        </View>
+      {!loading && searched && results.length === 0 && !error && (
+        <EmptyState icon="search" title={`«${query}» ${t.search_notFound}`} />
       )}
 
-      <FlatList
-        data={results}
-        keyExtractor={h => h.id}
-        contentContainerStyle={{ padding: 14 }}
-        renderItem={({ item }) => {
-          const isMale = item.sex === 'м';
-          const ageName = getAgeName(item.birth_year, item.sex, ageNames);
-          return (
-            <TouchableOpacity
-              style={styles.card}
-              onPress={() => navigation.navigate('HorseDetail', { horseId: item.id })}
-              activeOpacity={0.75}
-            >
-              <View style={[styles.sexStrip, { backgroundColor: isMale ? C.maleBorder : C.femaleBorder }]} />
-              <View style={[styles.brandWrap, { backgroundColor: isMale ? C.maleBg : C.femaleBg }]}>
-                <Text style={[styles.brand, { color: isMale ? C.male : C.female }]}>{item.brand}</Text>
-                <Text style={[styles.sexIcon, { color: isMale ? C.male : C.female }]}>{isMale ? '♂' : '♀'}</Text>
-              </View>
-              <View style={styles.cardInfo}>
-                {item.name ? <Text style={styles.horseName}>{item.name}</Text> : null}
-                <Text style={styles.ageName}>{ageName} · {item.birth_year}</Text>
-                {item.breed ? <Text style={styles.breed}>{item.breed}</Text> : null}
-              </View>
-              <Text style={styles.arrow}>›</Text>
-            </TouchableOpacity>
-          );
-        }}
-      />
+      {!loading && error && (
+        <EmptyState icon="search" title={t.error} subtitle={error} />
+      )}
+
+      {!loading && (
+        <FlatList
+          data={results}
+          keyExtractor={h => h.id}
+          contentContainerStyle={{ padding: 14 }}
+          keyboardShouldPersistTaps="handled"
+          renderItem={({ item }) => {
+            const isMale = item.sex === 'м';
+            const ageName = getAgeName(item.birth_year, item.sex, ageNames);
+            return (
+              <TouchableOpacity
+                style={styles.card}
+                onPress={() => navigation.navigate('HorseDetail', { horseId: item.id })}
+                activeOpacity={0.75}
+              >
+                <View style={[styles.sexStrip, { backgroundColor: isMale ? C.maleBorder : C.femaleBorder }]} />
+                <View style={[styles.brandWrap, { backgroundColor: isMale ? C.maleBg : C.femaleBg }]}>
+                  <Text style={[styles.brand, { color: isMale ? C.male : C.female }]}>{item.brand}</Text>
+                  <Text style={[styles.sexIcon, { color: isMale ? C.male : C.female }]}>{isMale ? '♂' : '♀'}</Text>
+                </View>
+                <View style={styles.cardInfo}>
+                  {item.name ? <Text style={styles.horseName}>{item.name}</Text> : null}
+                  <Text style={styles.ageName}>{ageName} · {item.birth_year}</Text>
+                  {item.breed ? <Text style={styles.breed}>{item.breed}</Text> : null}
+                </View>
+                <Text style={styles.arrow}>›</Text>
+              </TouchableOpacity>
+            );
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -107,9 +150,6 @@ const makeStyles = (C: Colors) => StyleSheet.create({
   searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, margin: 14, borderRadius: 14, paddingHorizontal: 14, borderWidth: 1, borderColor: C.border },
   searchIcon: { fontSize: 18, marginRight: 8 },
   input: { flex: 1, color: C.text, fontSize: 16, paddingVertical: 14 },
-  hintWrap: { alignItems: 'center', paddingTop: 60 },
-  hintIcon: { fontSize: 40, marginBottom: 14 },
-  hintText: { color: C.faint, fontSize: 14, textAlign: 'center', paddingHorizontal: 40, lineHeight: 22 },
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 14, marginBottom: 10, overflow: 'hidden', borderWidth: 1, borderColor: C.border },
   sexStrip: { width: 4, alignSelf: 'stretch' },
   brandWrap: { paddingHorizontal: 14, paddingVertical: 14, alignItems: 'center', minWidth: 76 },

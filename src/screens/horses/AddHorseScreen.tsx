@@ -50,10 +50,15 @@ export default function AddHorseScreen({ navigation, route }: Props) {
     }
 
     setSaving(true);
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !user) {
+      Alert.alert(t.error, t.auth_googleError);
+      setSaving(false);
+      return;
+    }
 
     const { error } = await supabase.from('shezhire_horses').insert({
-      owner_id: user!.id,
+      owner_id: user.id,
       herd_id: herdId ?? null,
       brand: brand.trim(),
       sequence_no: parsed.sequenceNo,

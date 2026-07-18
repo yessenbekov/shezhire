@@ -52,7 +52,8 @@ export default function HorseDetailScreen({ navigation, route }: Props) {
     Alert.alert(t.delete, `${horse?.brand} ${t.horse_deleteConfirm}`, [
       { text: t.no, style: 'cancel' },
       { text: t.delete, style: 'destructive', onPress: async () => {
-        await supabase.from('shezhire_horses').delete().eq('id', horseId);
+        const { error } = await supabase.from('shezhire_horses').delete().eq('id', horseId);
+        if (error) { Alert.alert(t.error, error.message); return; }
         navigation.goBack();
       }},
     ]);

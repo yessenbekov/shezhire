@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Switch, Alert, TextInput } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../context/ThemeContext';
@@ -13,21 +13,34 @@ const AGE_SLOTS = [
 export default function ProfileScreen() {
   const { C, mode, toggleTheme, ageNames, saveAgeNames, lang, setLang } = useTheme();
   const t = useT();
-  const s = makeStyles(C);
+  const s = useMemo(() => makeStyles(C), [C]);
 
   const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
   const [localNames, setLocalNames] = useState<Record<string, string>>(ageNames);
   const [editingNames, setEditingNames] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { supabase.auth.getUser().then(({ data: { user } }) => { if (user) setEmail(user.email ?? ''); }); }, []);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setEmail(user.email ?? '');
+        setFullName(user.user_metadata?.full_name ?? '');
+      }
+    });
+  }, []);
   useEffect(() => { setLocalNames(ageNames); }, [ageNames]);
 
   async function handleSaveNames() {
     setSaving(true);
-    await saveAgeNames(localNames);
-    setSaving(false);
-    setEditingNames(false);
+    try {
+      await saveAgeNames(localNames);
+      setEditingNames(false);
+    } catch (e: any) {
+      Alert.alert(t.error, e?.message ?? t.error);
+    } finally {
+      setSaving(false);
+    }
   }
 
   function handleSignOut() {
@@ -46,6 +59,7 @@ export default function ProfileScreen() {
     <ScrollView style={s.container} contentContainerStyle={{ padding: 20, paddingBottom: 60 }}>
       <View style={s.card}>
         <Text style={s.avatarText}>👤</Text>
+        {fullName ? <Text style={s.fullName}>{fullName}</Text> : null}
         <Text style={s.email}>{email}</Text>
       </View>
 
@@ -121,7 +135,8 @@ function makeStyles(C: ReturnType<typeof useTheme>['C']) {
     container: { flex: 1, backgroundColor: C.bg },
     card: { backgroundColor: C.surface, borderRadius: 14, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: C.border },
     avatarText: { fontSize: 48, textAlign: 'center', marginBottom: 8 },
-    email: { color: C.text, fontSize: 16, textAlign: 'center', fontWeight: '600' },
+    fullName: { color: C.text, fontSize: 18, textAlign: 'center', fontWeight: '700', marginBottom: 4 },
+    email: { color: C.muted, fontSize: 14, textAlign: 'center' },
     section: { color: C.gold, fontSize: 11, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8, marginTop: 16 },
     sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 16, marginBottom: 8 },
     editBtn: { color: C.gold, fontSize: 14, fontWeight: '600' },

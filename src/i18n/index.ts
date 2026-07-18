@@ -31,7 +31,7 @@ const KK = {
   horse_pedigree: 'Шежіре', horse_father: '♂ Әкесі', horse_mother: '♀ Шешесі',
   horse_tree: '🌳 Шежіре ағашы', horse_offspring: 'Ұрпақтары',
   horse_notes: 'Жазбалар', horse_born: 'жылы туылған', horse_age: 'жас',
-  horse_notFound: 'Табылмады', horse_deleteConfirm: 'лошадін жою керек пе?',
+  horse_notFound: 'Табылмады', horse_deleteConfirm: 'жылқыны жою керек пе?',
   horse_brandLabel: 'Клеймо', horse_brandPlaceholder: 'ЖЖ/НН (мысалы: 26/35)',
   horse_bornYear: 'жылы туылған', horse_seqNo: '№',
   horse_additional: 'Қосымша мәліметтер',
@@ -69,7 +69,7 @@ const KK = {
   search_notFound: 'бойынша табылмады',
   picker_search: 'Клеймо немесе кличка...',
   picker_clear: '— Белгісіз (тазарту)',
-  picker_empty: 'Лошадь табылмады',
+  picker_empty: 'Жылқы табылмады',
 
   report_general: 'Жалпы', report_total: 'Барлығы', report_alive: 'Тірі',
   report_dead: 'Қайтыс', report_sold: 'Сатылды', report_slaughtered: 'Сойылды',
@@ -78,8 +78,10 @@ const KK = {
   report_deaths: 'Қайтыс болғандар жыл бойынша',
   report_sales: 'Сатылғандар жыл бойынша',
   report_noData: 'Мәліметтер жоқ',
-  report_noDataHint: 'Лошадь қосқаннан кейін статистика пайда болады',
+  report_noDataHint: 'Жылқы қосқаннан кейін статистика пайда болады',
   report_pdf: 'PDF есеп жасау және бөлісу', report_pdfLoading: 'PDF жасалуда...',
+  report_year: 'Жыл', report_count: 'Саны',
+  report_dateLabel: 'Есеп күні', report_pdfError: 'PDF жасау мүмкін болмады',
 
   profile_theme: 'Тема', profile_dark: '🌙 Қараңғы тема', profile_light: '☀️ Жарық тема',
   profile_ageNames: 'Жас атаулары', profile_language: 'Тіл / Язык',
@@ -108,7 +110,7 @@ const RU: typeof KK = {
   add: 'Добавить', delete: 'Удалить', close: 'Закрыть', edit: 'Изменить',
   select: 'Выбрать...', unknown: 'Неизвестно',
 
-  nav_herds: 'Үйірлер', nav_search: 'Поиск', nav_reports: 'Отчёт', nav_profile: 'Кабинет',
+  nav_herds: 'Табуны', nav_search: 'Поиск', nav_reports: 'Отчёт', nav_profile: 'Кабинет',
   nav_myHerds: 'Мои косяки', nav_addHorse: 'Добавить лошадь', nav_editHorse: 'Изменить',
   nav_reports_title: 'Отчётность', nav_profile_title: 'Личный кабинет',
 
@@ -180,6 +182,8 @@ const RU: typeof KK = {
   report_noData: 'Нет данных',
   report_noDataHint: 'После добавления лошадей появится статистика',
   report_pdf: 'Создать PDF отчёт и поделиться', report_pdfLoading: 'Создание PDF...',
+  report_year: 'Год', report_count: 'Кол-во',
+  report_dateLabel: 'Дата отчёта', report_pdfError: 'Не удалось создать PDF',
 
   profile_theme: 'Тема', profile_dark: '🌙 Тёмная тема', profile_light: '☀️ Светлая тема',
   profile_ageNames: 'Возрастные названия', profile_language: 'Тіл / Язык',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../context/ThemeContext';
@@ -20,16 +20,42 @@ interface TreeNode {
   depth: number;
 }
 
-async function buildTree(id: string | null, depth: number, maxDepth = 4): Promise<TreeNode> {
+// Batch-fetch all ancestors in at most maxDepth round trips (one per generation level)
+// instead of one query per node (O(2^n) requests).
+async function fetchAncestorMap(rootId: string, maxDepth = 4): Promise<Record<string, Horse>> {
+  const map: Record<string, Horse> = {};
+  let toFetch = [rootId];
+
+  for (let depth = 0; depth < maxDepth && toFetch.length > 0; depth++) {
+    const { data } = await supabase
+      .from('shezhire_horses')
+      .select('*')
+      .in('id', toFetch);
+
+    if (!data) break;
+
+    const nextToFetch: string[] = [];
+    for (const horse of data as Horse[]) {
+      map[horse.id] = horse;
+      if (horse.sire_id && !map[horse.sire_id]) nextToFetch.push(horse.sire_id);
+      if (horse.dam_id && !map[horse.dam_id]) nextToFetch.push(horse.dam_id);
+    }
+    toFetch = [...new Set(nextToFetch)];
+  }
+
+  return map;
+}
+
+function buildTree(id: string | null, map: Record<string, Horse>, depth: number, maxDepth = 4): TreeNode {
   if (!id || depth >= maxDepth) return { horse: null, sire: null, dam: null, depth };
-  const { data } = await supabase.from('shezhire_horses').select('*').eq('id', id).single();
-  if (!data) return { horse: null, sire: null, dam: null, depth };
-  const horse = data as Horse;
-  const [sire, dam] = await Promise.all([
-    buildTree(horse.sire_id, depth + 1, maxDepth),
-    buildTree(horse.dam_id, depth + 1, maxDepth),
-  ]);
-  return { horse, sire, dam, depth };
+  const horse = map[id] ?? null;
+  if (!horse) return { horse: null, sire: null, dam: null, depth };
+  return {
+    horse,
+    sire: buildTree(horse.sire_id ?? null, map, depth + 1, maxDepth),
+    dam:  buildTree(horse.dam_id  ?? null, map, depth + 1, maxDepth),
+    depth,
+  };
 }
 
 export default function ShireTreeScreen({ navigation, route }: Props) {
@@ -37,9 +63,17 @@ export default function ShireTreeScreen({ navigation, route }: Props) {
   const { C } = useTheme();
   const [tree, setTree] = useState<TreeNode | null>(null);
   const [loading, setLoading] = useState(true);
+  const mounted = useRef(true);
 
   useEffect(() => {
-    buildTree(horseId, 0).then(t => { setTree(t); setLoading(false); });
+    mounted.current = true;
+    setLoading(true);
+    fetchAncestorMap(horseId).then(map => {
+      if (!mounted.current) return;
+      setTree(buildTree(horseId, map, 0));
+      setLoading(false);
+    });
+    return () => { mounted.current = false; };
   }, [horseId]);
 
   if (loading) return <ActivityIndicator size="large" color={C.gold} style={{ flex: 1, backgroundColor: C.bg }} />;
@@ -55,7 +89,7 @@ export default function ShireTreeScreen({ navigation, route }: Props) {
   );
 }
 
-function TreeNodeView({ node, navigation, C }: { node: TreeNode; navigation: any; C: Colors }) {
+function TreeNodeView({ node, navigation, C }: { node: TreeNode; navigation: NativeStackNavigationProp<HerdsStackParamList>; C: Colors }) {
   const styles = treeStyles(C);
   if (!node.horse) {
     return (

@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { supabase } from '../../lib/supabase';
 import { useTheme } from '../../context/ThemeContext';
-import { useT } from '../../i18n';
+import { useT, type Lang } from '../../i18n';
 
 interface Stats {
   total: number;
@@ -18,9 +18,9 @@ interface Stats {
 }
 
 export default function ReportsScreen() {
-  const { C } = useTheme();
+  const { C, lang } = useTheme();
   const t = useT();
-  const s = makeStyles(C);
+  const s = useMemo(() => makeStyles(C), [C]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -69,15 +69,15 @@ export default function ReportsScreen() {
     if (!stats) return;
     setPdfLoading(true);
     try {
-      const html = buildReportHTML(stats);
+      const html = buildReportHTML(stats, t, lang);
       const { uri } = await Print.printToFileAsync({ html, base64: false });
       await Sharing.shareAsync(uri, {
         mimeType: 'application/pdf',
-        dialogTitle: 'Есепті бөлісу',
+        dialogTitle: t.report_pdf,
         UTI: 'com.adobe.pdf',
       });
     } catch (e: any) {
-      Alert.alert('Қате', e?.message ?? 'PDF жасау мүмкін болмады');
+      Alert.alert(t.error, e?.message ?? t.report_pdfError);
     } finally {
       setPdfLoading(false);
     }
@@ -98,6 +98,7 @@ export default function ReportsScreen() {
   const birthYears = Object.keys(stats.byBirthYear).map(Number).sort((a, b) => b - a);
   const deathYears = Object.keys(stats.byDeathYear).map(Number).sort((a, b) => b - a);
   const maxBirths = Math.max(...birthYears.map(y => stats.byBirthYear[y].total));
+  const maxDeaths = deathYears.length > 0 ? Math.max(...deathYears.map(y => stats.byDeathYear[y])) : 1;
 
   return (
     <ScrollView style={s.container} contentContainerStyle={{ padding: 16, paddingBottom: 48 }}>
@@ -147,7 +148,7 @@ export default function ReportsScreen() {
               <View key={year} style={s.yearRow}>
                 <Text style={s.yearLabel}>{year}</Text>
                 <View style={s.barWrap}>
-                  <View style={[s.bar, { width: `${(stats.byDeathYear[year] / stats.dead) * 100}%` as any, backgroundColor: C.danger }]} />
+                  <View style={[s.bar, { width: `${(stats.byDeathYear[year] / maxDeaths) * 100}%` as any, backgroundColor: C.danger }]} />
                 </View>
                 <Text style={[s.yearCount, { color: C.danger }]}>{stats.byDeathYear[year]}</Text>
               </View>
@@ -190,9 +191,10 @@ function makeStyles(C: any) {
   });
 }
 
-function buildReportHTML(stats: Stats): string {
+function buildReportHTML(stats: Stats, t: ReturnType<typeof useT>, lang: Lang): string {
   const now = new Date();
-  const dateStr = now.toLocaleDateString('kk-KZ', { year: 'numeric', month: 'long', day: 'numeric' });
+  const locale = lang === 'ru' ? 'ru-RU' : 'kk-KZ';
+  const dateStr = now.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
 
   const birthYears = Object.keys(stats.byBirthYear).map(Number).sort((a, b) => b - a);
   const deathYears = Object.keys(stats.byDeathYear).map(Number).sort((a, b) => b - a);
@@ -216,13 +218,13 @@ function buildReportHTML(stats: Stats): string {
 
   const deathSection = deathYears.length > 0 ? `
     <h2 style="color:#9A6E14;font-size:14px;margin-top:28px;margin-bottom:10px;text-transform:uppercase;letter-spacing:2px">
-      Қайтыс болғандар жыл бойынша
+      ${t.report_deaths}
     </h2>
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
         <tr style="background:#f5efe6;color:#7A5A40">
-          <th style="text-align:left;padding:8px 10px;border-bottom:1px solid #ddd0b8">Жыл</th>
-          <th style="text-align:center;padding:8px 10px;border-bottom:1px solid #ddd0b8">Саны</th>
+          <th style="text-align:left;padding:8px 10px;border-bottom:1px solid #ddd0b8">${t.report_year}</th>
+          <th style="text-align:center;padding:8px 10px;border-bottom:1px solid #ddd0b8">${t.report_count}</th>
         </tr>
       </thead>
       <tbody>
@@ -265,7 +267,7 @@ function buildReportHTML(stats: Stats): string {
       <div class="logo-sub">Жылқы тегінің кітабы</div>
     </div>
     <div class="date">
-      <div style="font-weight:600;margin-bottom:2px">Есеп күні</div>
+      <div style="font-weight:600;margin-bottom:2px">${t.report_dateLabel}</div>
       <div>${dateStr}</div>
     </div>
   </div>
@@ -273,35 +275,35 @@ function buildReportHTML(stats: Stats): string {
   <div class="summary">
     <div class="tile">
       <div class="tile-num" style="color:#9A6E14">${stats.total}</div>
-      <div class="tile-label">Барлығы</div>
+      <div class="tile-label">${t.report_total}</div>
     </div>
     <div class="tile">
       <div class="tile-num" style="color:#2A9060">${stats.alive}</div>
-      <div class="tile-label">Тірі</div>
+      <div class="tile-label">${t.report_alive}</div>
     </div>
     <div class="tile">
       <div class="tile-num" style="color:#C84A4A">${stats.dead}</div>
-      <div class="tile-label">Қайтыс</div>
+      <div class="tile-label">${t.report_dead}</div>
     </div>
     <div class="tile">
       <div class="tile-num" style="color:#1A6A8A">♂ ${stats.male}</div>
-      <div class="tile-label">Айғыр</div>
+      <div class="tile-label">${t.report_stallions.replace('♂ ', '')}</div>
     </div>
     <div class="tile">
       <div class="tile-num" style="color:#8A1A5A">♀ ${stats.female}</div>
-      <div class="tile-label">Бие</div>
+      <div class="tile-label">${t.report_mares.replace('♀ ', '')}</div>
     </div>
   </div>
 
-  <h2>Туылғандар жыл бойынша</h2>
+  <h2>${t.report_births}</h2>
   <table>
     <thead>
       <tr>
-        <th>Жыл</th>
-        <th style="text-align:center">Барлығы</th>
-        <th style="text-align:center">Айғыр</th>
-        <th style="text-align:center">Бие</th>
-        <th style="min-width:120px">Үлесі</th>
+        <th>${t.report_year}</th>
+        <th style="text-align:center">${t.report_total}</th>
+        <th style="text-align:center">${t.report_stallions.replace('♂ ', '♂ ')}</th>
+        <th style="text-align:center">${t.report_mares.replace('♀ ', '♀ ')}</th>
+        <th style="min-width:120px">${t.report_count}</th>
       </tr>
     </thead>
     <tbody>${birthRows}</tbody>

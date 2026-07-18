@@ -3,6 +3,8 @@ import {
   View, Text, FlatList, TouchableOpacity, StyleSheet, Alert,
   Modal, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform,
 } from 'react-native';
+import EmptyState from '../../components/EmptyState';
+import SkeletonCard from '../../components/SkeletonCard';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
@@ -80,18 +82,24 @@ export default function HerdsScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator size="large" color={C.gold} style={{ flex: 1 }} />
+        <View style={{ padding: 16 }}>
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </View>
       ) : (
         <FlatList
           data={herds}
           keyExtractor={h => h.id}
           contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
           ListEmptyComponent={
-            <View style={styles.emptyWrap}>
-              <Text style={styles.emptyIcon}>🐎</Text>
-              <Text style={styles.emptyTitle}>{t.herds_empty}</Text>
-              <Text style={styles.emptySub}>{t.herds_emptyHint}</Text>
-            </View>
+            <EmptyState
+              icon="herds"
+              title={t.herds_empty}
+              subtitle={t.herds_emptyHint}
+              actionLabel={t.herds_new}
+              onAction={() => setModalVisible(true)}
+            />
           }
           renderItem={({ item }) => {
             const total = item.horses?.length ?? 0;

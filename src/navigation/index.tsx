@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Linking from 'expo-linking';
 import * as WebBrowser from 'expo-web-browser';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { supabase } from '../lib/supabase';
 import { useTheme } from '../context/ThemeContext';
 import { useT } from '../i18n';
-import IconHorse from '../components/icons/IconHorse';
-import IconSearch from '../components/icons/IconSearch';
-import IconReport from '../components/icons/IconReport';
-import IconProfile from '../components/icons/IconProfile';
 import type { Session } from '@supabase/supabase-js';
 
 import LoginScreen from '../screens/auth/LoginScreen';
@@ -26,6 +23,7 @@ import ShireTreeScreen from '../screens/horses/ShireTreeScreen';
 import SearchScreen from '../screens/search/SearchScreen';
 import ReportsScreen from '../screens/reports/ReportsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
 
 export type RootStackParamList = { Auth: undefined; Main: undefined };
 export type AuthStackParamList = { Login: undefined; Register: undefined };
@@ -99,14 +97,14 @@ function MainNavigator() {
       <MainTab.Screen
         name="HerdsTab"
         component={HerdsNavigator}
-        options={{ tabBarLabel: t.nav_herds, tabBarIcon: ({ color }) => <IconHorse size={26} color={color} /> }}
+        options={{ tabBarLabel: t.nav_herds, tabBarIcon: ({ color }) => <MaterialCommunityIcons name="horse" size={26} color={color} /> }}
       />
       <MainTab.Screen
         name="SearchTab"
         component={SearchScreen}
         options={{
           tabBarLabel: t.nav_search,
-          tabBarIcon: ({ color }) => <IconSearch size={22} color={color} />,
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="magnify" size={24} color={color} />,
           headerShown: true,
           headerTitle: t.nav_search,
           headerStyle: { backgroundColor: C.surface },
@@ -119,7 +117,7 @@ function MainNavigator() {
         component={ReportsScreen}
         options={{
           tabBarLabel: t.nav_reports,
-          tabBarIcon: ({ color }) => <IconReport size={22} color={color} />,
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="chart-bar" size={24} color={color} />,
           headerShown: true,
           headerTitle: t.nav_reports_title,
           headerStyle: { backgroundColor: C.surface },
@@ -132,7 +130,7 @@ function MainNavigator() {
         component={ProfileScreen}
         options={{
           tabBarLabel: t.nav_profile,
-          tabBarIcon: ({ color }) => <IconProfile size={22} color={color} />,
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons name="account-outline" size={24} color={color} />,
           headerShown: true,
           headerTitle: t.nav_profile_title,
           headerStyle: { backgroundColor: C.surface },
@@ -161,9 +159,17 @@ async function handleAuthDeepLink(url: string) {
 export default function AppNavigator() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [onboarded, setOnboarded] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => { setSession(session); setLoading(false); });
+    Promise.all([
+      supabase.auth.getSession().then(({ data: { session } }) => session),
+      AsyncStorage.getItem('@shezhire/onboarded').then(v => v === '1'),
+    ]).then(([sess, ob]) => {
+      setSession(sess);
+      setOnboarded(ob);
+      setLoading(false);
+    });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
     return () => subscription.unsubscribe();
   }, []);
@@ -176,6 +182,10 @@ export default function AppNavigator() {
   }, []);
 
   if (loading) return null;
+
+  if (!onboarded) {
+    return <OnboardingScreen onComplete={() => setOnboarded(true)} />;
+  }
 
   return (
     <NavigationContainer>
